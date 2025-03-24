@@ -29,8 +29,8 @@ const Button = ({
   const baseStyles = 'relative inline-flex items-center justify-center font-medium rounded-md transition-all ease-in-out duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-claudia-primary hover:scale-[1.02] active:scale-[0.98]';
   
   const variantStyles = {
-    primary: 'bg-claudia-primary text-white shadow-md hover:bg-opacity-90',
-    secondary: 'bg-claudia-secondary text-claudia-primary shadow-sm hover:bg-opacity-90',
+    primary: 'bg-claudia-primary text-claudia-white shadow-md hover:bg-opacity-90',
+    secondary: 'bg-claudia-secondary text-claudia-foreground shadow-sm hover:bg-opacity-90',
     outlined: 'bg-transparent border-2 border-claudia-primary text-claudia-primary hover:bg-claudia-muted',
     ghost: 'bg-transparent text-claudia-primary hover:bg-claudia-muted'
   };
@@ -68,7 +68,6 @@ const Button = ({
           disabledStyles,
           className
         )}
-        {...props}
       >
         {buttonContent}
       </a>

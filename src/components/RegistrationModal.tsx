@@ -103,7 +103,9 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
           title: "Registro exitoso",
           description: "Por favor verifica tu código.",
         });
+        // Close the registration modal
         handleClose();
+        // Open the verification modal
         setIsVerificationModalOpen(true);
       } else {
         toast({
@@ -128,21 +130,21 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-background rounded-lg w-full max-w-md shadow-xl animate-fade-in-up relative overflow-hidden">
+          <div className="bg-[#142126] rounded-lg w-full max-w-md shadow-xl animate-fade-in-up relative overflow-hidden text-claudia-white">
             {/* Decorative element */}
             <div className="absolute top-0 right-0 w-40 h-40 bg-claudia-primary opacity-10 rounded-bl-full -z-10"></div>
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-claudia-accent opacity-10 rounded-tr-full -z-10"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-claudia-primary opacity-10 rounded-tr-full -z-10"></div>
             
             <div className="p-6">
-              <h2 className="text-2xl font-bold mb-1">Regístrate en ClaudIA</h2>
+              <h2 className="text-2xl font-bold mb-1 text-claudia-white">Regístrate en ClaudIA</h2>
               {selectedPlan && (
                 <p className="text-claudia-primary mb-4">Plan seleccionado: {selectedPlan}</p>
               )}
-              <p className="text-muted-foreground mb-6">Completa el formulario para comenzar tu experiencia con ClaudIA</p>
+              <p className="text-claudia-white/70 mb-6">Completa el formulario para comenzar tu experiencia con ClaudIA</p>
               
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium mb-1">
+                  <label htmlFor="name" className="block text-sm font-medium mb-1 text-claudia-white">
                     Nombre
                   </label>
                   <input
@@ -150,14 +152,14 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary"
+                    className="w-full px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
                     placeholder="Tu nombre"
                     disabled={isLoading}
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="lastname" className="block text-sm font-medium mb-1">
+                  <label htmlFor="lastname" className="block text-sm font-medium mb-1 text-claudia-white">
                     Apellido
                   </label>
                   <input
@@ -165,14 +167,14 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
                     type="text"
                     value={lastname}
                     onChange={(e) => setLastname(e.target.value)}
-                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary"
+                    className="w-full px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
                     placeholder="Tu apellido"
                     disabled={isLoading}
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium mb-1">
+                  <label htmlFor="email" className="block text-sm font-medium mb-1 text-claudia-white">
                     Correo electrónico
                   </label>
                   <input
@@ -180,14 +182,14 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary"
+                    className="w-full px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
                     placeholder="nombre@ejemplo.com"
                     disabled={isLoading}
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium mb-1">
+                  <label htmlFor="phone" className="block text-sm font-medium mb-1 text-claudia-white">
                     Número de teléfono (WhatsApp)
                   </label>
                   <input
@@ -195,7 +197,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary"
+                    className="w-full px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
                     placeholder="+573128310805"
                     disabled={isLoading}
                   />
@@ -207,6 +209,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
                     variant="ghost"
                     onClick={handleClose}
                     disabled={isLoading}
+                    className="text-claudia-white hover:text-claudia-primary"
                   >
                     Cancelar
                   </Button>
@@ -224,11 +227,14 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
         </div>
       </Dialog>
       
-      <VerificationModal
-        isOpen={isVerificationModalOpen}
-        onClose={() => setIsVerificationModalOpen(false)}
-        email={email}
-      />
+      {/* Verification Modal - Only shown after successful registration */}
+      {isVerificationModalOpen && (
+        <VerificationModal
+          isOpen={isVerificationModalOpen}
+          onClose={() => setIsVerificationModalOpen(false)}
+          email={email}
+        />
+      )}
     </>
   );
 };

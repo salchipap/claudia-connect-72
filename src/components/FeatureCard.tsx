@@ -25,11 +25,11 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
       )}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <div className="mb-5 p-3 rounded-full bg-claudia-muted text-claudia-accent">
+      <div className="mb-5 p-3 rounded-full bg-claudia-primary/20 text-claudia-primary">
         {icon}
       </div>
-      <h3 className="text-xl font-semibold mb-3">{title}</h3>
-      <p className="text-muted-foreground">{description}</p>
+      <h3 className="text-xl font-semibold mb-3 text-claudia-white">{title}</h3>
+      <p className="text-claudia-white/80">{description}</p>
     </div>
   );
 };

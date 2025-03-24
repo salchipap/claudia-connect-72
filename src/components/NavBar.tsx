@@ -21,15 +21,15 @@ const NavBar: React.FC = () => {
       }`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="text-2xl font-bold text-claudia-primary">
+        <div className="text-2xl font-bold text-claudia-white">
           ClaudIA
         </div>
         
         <div className="hidden md:flex items-center space-x-8">
-          <a href="#features" className="text-foreground hover:text-claudia-primary transition-colors">
+          <a href="#features" className="text-claudia-white hover:text-claudia-primary transition-colors">
             Funciones
           </a>
-          <a href="#pricing" className="text-foreground hover:text-claudia-primary transition-colors">
+          <a href="#pricing" className="text-claudia-white hover:text-claudia-primary transition-colors">
             Precios
           </a>
         </div>
@@ -39,6 +39,7 @@ const NavBar: React.FC = () => {
             href="https://wa.me/573128310805"
             variant="ghost"
             size="sm"
+            className="text-claudia-white hover:text-claudia-primary"
           >
             Chatear con ClaudIA
           </Button>

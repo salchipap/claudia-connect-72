@@ -81,16 +81,16 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-        <div className="bg-background rounded-lg w-full max-w-md shadow-xl animate-fade-in-up">
+        <div className="bg-[#142126] rounded-lg w-full max-w-md shadow-xl animate-fade-in-up text-claudia-white">
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-2">Verificación</h2>
-            <p className="text-muted-foreground mb-6">
+            <h2 className="text-2xl font-bold mb-2 text-claudia-white">Verificación</h2>
+            <p className="text-claudia-white/70 mb-6">
               Hemos enviado un código de verificación a tu correo electrónico. Por favor, ingrésalo a continuación para completar tu registro.
             </p>
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="code" className="block text-sm font-medium mb-1">
+                <label htmlFor="code" className="block text-sm font-medium mb-1 text-claudia-white">
                   Código de verificación
                 </label>
                 <input
@@ -98,7 +98,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
-                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary"
+                  className="w-full px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
                   placeholder="Ingresa el código aquí"
                   disabled={isLoading}
                 />
@@ -110,6 +110,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
                   variant="ghost"
                   onClick={handleClose}
                   disabled={isLoading}
+                  className="text-claudia-white hover:text-claudia-primary"
                 >
                   Cancelar
                 </Button>

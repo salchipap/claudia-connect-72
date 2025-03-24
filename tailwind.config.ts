@@ -26,11 +26,13 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				claudia: {
-					primary: 'hsl(var(--claudia-primary))',
+					primary: '#24D266', // Updated to green
 					secondary: 'hsl(var(--claudia-secondary))',
 					accent: 'hsl(var(--claudia-accent))',
 					muted: 'hsl(var(--claudia-muted))',
-					foreground: 'hsl(var(--claudia-foreground))'
+					foreground: '#000000', // Black text
+					background: '#142126', // Dark background
+					white: '#FEFEFF', // White accent
 				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
