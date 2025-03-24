@@ -1,6 +1,6 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 type ButtonProps = {
   onClick?: () => void;
@@ -12,6 +12,7 @@ type ButtonProps = {
   loading?: boolean;
   children: React.ReactNode;
   href?: string;
+  to?: string;
 };
 
 const Button = ({
@@ -24,6 +25,7 @@ const Button = ({
   loading = false,
   children,
   href,
+  to,
   ...props
 }: ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
   const baseStyles = 'relative inline-flex items-center justify-center font-medium rounded-md transition-all ease-in-out duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-claudia-primary hover:scale-[1.02] active:scale-[0.98]';
@@ -31,8 +33,8 @@ const Button = ({
   const variantStyles = {
     primary: 'bg-claudia-primary text-claudia-white shadow-md hover:bg-opacity-90',
     secondary: 'bg-claudia-secondary text-claudia-foreground shadow-sm hover:bg-opacity-90',
-    outlined: 'bg-transparent border-2 border-claudia-primary text-claudia-primary hover:bg-claudia-muted',
-    ghost: 'bg-transparent text-claudia-primary hover:bg-claudia-muted'
+    outlined: 'bg-transparent border-2 border-claudia-primary text-claudia-white hover:bg-claudia-muted',
+    ghost: 'bg-transparent text-claudia-white hover:bg-claudia-muted'
   };
   
   const sizeStyles = {
@@ -57,17 +59,30 @@ const Button = ({
     </>
   );
   
+  const buttonClasses = cn(
+    baseStyles,
+    variantStyles[variant],
+    sizeStyles[size],
+    disabledStyles,
+    className
+  );
+  
+  if (to) {
+    return (
+      <Link
+        to={to}
+        className={buttonClasses}
+      >
+        {buttonContent}
+      </Link>
+    );
+  }
+  
   if (href) {
     return (
       <a
         href={href}
-        className={cn(
-          baseStyles,
-          variantStyles[variant],
-          sizeStyles[size],
-          disabledStyles,
-          className
-        )}
+        className={buttonClasses}
       >
         {buttonContent}
       </a>
@@ -79,13 +94,7 @@ const Button = ({
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
-      className={cn(
-        baseStyles,
-        variantStyles[variant],
-        sizeStyles[size],
-        disabledStyles,
-        className
-      )}
+      className={buttonClasses}
       {...props}
     >
       {buttonContent}

@@ -42,7 +42,7 @@ const HeroSection: React.FC = () => {
             to="/register"
             variant="outlined"
             size="lg"
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto text-claudia-white"
           >
             Registrarse
           </Button>
