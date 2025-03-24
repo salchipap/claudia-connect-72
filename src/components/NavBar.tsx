@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Button from './Button';
+import { Link } from 'react-router-dom';
 
 const NavBar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -22,7 +23,7 @@ const NavBar: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="text-2xl font-bold text-claudia-white">
-          ClaudIA
+          <Link to="/">ClaudIA</Link>
         </div>
         
         <div className="hidden md:flex items-center space-x-8">
@@ -44,7 +45,7 @@ const NavBar: React.FC = () => {
             Chatear con ClaudIA
           </Button>
           <Button 
-            href="#register"
+            to="/register"
             variant="ghost"
             size="sm"
             className="text-claudia-white hover:text-claudia-primary"

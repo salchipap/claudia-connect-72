@@ -1,15 +1,13 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import PricingCard from './PricingCard';
-import RegistrationModal from './RegistrationModal';
+import { useNavigate } from 'react-router-dom';
 
 const PricingSection: React.FC = () => {
-  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState('');
+  const navigate = useNavigate();
   
   const handlePricingClick = (planName: string) => {
-    setSelectedPlan(planName);
-    setIsRegisterModalOpen(true);
+    navigate('/register', { state: { selectedPlan: planName } });
   };
   
   const pricingTiers = [
@@ -93,12 +91,6 @@ const PricingSection: React.FC = () => {
           </p>
         </div>
       </div>
-      
-      <RegistrationModal 
-        isOpen={isRegisterModalOpen} 
-        onClose={() => setIsRegisterModalOpen(false)}
-        selectedPlan={selectedPlan} 
-      />
     </section>
   );
 };

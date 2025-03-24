@@ -1,12 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import Button from './Button';
 import { ArrowRight } from 'lucide-react';
-import RegistrationModal from './RegistrationModal';
 
 const HeroSection: React.FC = () => {
-  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
-
   return (
     <section className="min-h-screen flex flex-col items-center justify-center pt-20 px-6 relative overflow-hidden">
       {/* Abstract Background */}
@@ -42,7 +39,7 @@ const HeroSection: React.FC = () => {
           </Button>
           
           <Button 
-            onClick={() => setIsRegisterModalOpen(true)}
+            to="/register"
             variant="outlined"
             size="lg"
             className="w-full sm:w-auto"
@@ -51,11 +48,6 @@ const HeroSection: React.FC = () => {
           </Button>
         </div>
       </div>
-      
-      <RegistrationModal 
-        isOpen={isRegisterModalOpen} 
-        onClose={() => setIsRegisterModalOpen(false)} 
-      />
     </section>
   );
 };
