@@ -39,6 +39,15 @@ const HeroSection: React.FC = () => {
           </Button>
           
           <Button 
+            href="https://wa.me/573128310805"
+            variant="ghost"
+            size="lg"
+            className="w-full sm:w-auto text-claudia-white"
+          >
+            Iniciar Sesión
+          </Button>
+          
+          <Button 
             to="/register"
             variant="outlined"
             size="lg"

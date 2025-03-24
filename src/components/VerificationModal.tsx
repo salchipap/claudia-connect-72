@@ -57,7 +57,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
         });
         handleClose();
         
-        // Redirect to WhatsApp after successful verification
+        // Redirect to WhatsApp after successful verification (this serves as the login)
         window.location.href = "https://wa.me/573128310805";
       } else {
         toast({

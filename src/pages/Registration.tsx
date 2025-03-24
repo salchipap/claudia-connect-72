@@ -5,9 +5,11 @@ import { useToast } from "@/hooks/use-toast";
 import { registerUserWithWebhook } from '@/utils/api';
 import VerificationModal from '@/components/VerificationModal';
 import Button from '@/components/Button';
+import { useNavigate } from 'react-router-dom';
 
 const Registration = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
@@ -80,7 +82,7 @@ const Registration = () => {
           title: "Registro exitoso",
           description: "Por favor verifica tu código.",
         });
-        // Open the verification modal
+        // Open the verification modal after successful registration
         setIsVerificationModalOpen(true);
       } else {
         toast({
