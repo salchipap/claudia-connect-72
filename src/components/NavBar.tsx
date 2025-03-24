@@ -37,16 +37,17 @@ const NavBar: React.FC = () => {
         <div className="flex items-center space-x-4">
           <Button 
             href="https://wa.me/573128310805"
-            variant="ghost"
+            variant="primary"
             size="sm"
-            className="text-claudia-white hover:text-claudia-primary"
+            className="whitespace-nowrap"
           >
             Chatear con ClaudIA
           </Button>
           <Button 
             href="#register"
-            variant="primary"
+            variant="ghost"
             size="sm"
+            className="text-claudia-white hover:text-claudia-primary"
           >
             Registrarse
           </Button>
