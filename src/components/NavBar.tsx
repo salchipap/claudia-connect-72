@@ -1,15 +1,14 @@
-
 import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import Button from './Button';
 import { cn } from '@/lib/utils';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const NavBar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   const isActive = (path: string) => location.pathname === path;
   
