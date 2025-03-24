@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Registration from "./pages/Registration";
 import NotFound from "./pages/NotFound";
+import FAQ from "./pages/FAQ";
 
 const queryClient = new QueryClient();
 
@@ -20,8 +21,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/register" element={<Registration />} />
-            <Route path="/faq" element={<NotFound />} />
-            {/* Add a placeholder FAQ page that uses the NotFound component for now */}
+            <Route path="/faq" element={<FAQ />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

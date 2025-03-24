@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Dialog } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Button from './Button';
 import { useToast } from "@/hooks/use-toast";
 import { loginUser } from '@/utils/api';
@@ -87,9 +87,9 @@ const LoginModal: React.FC<LoginModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-        <div className="bg-[#142126] rounded-lg w-full max-w-md shadow-xl animate-fade-in-up relative overflow-hidden text-claudia-white">
-          {/* Decorative element */}
+      <DialogContent className="bg-[#142126] border-claudia-primary/20 text-claudia-white p-0 overflow-hidden max-w-md">
+        <div className="relative overflow-hidden">
+          {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-40 h-40 bg-claudia-primary opacity-10 rounded-bl-full -z-10"></div>
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-claudia-primary opacity-10 rounded-tr-full -z-10"></div>
           
@@ -166,7 +166,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
             </Form>
           </div>
         </div>
-      </div>
+      </DialogContent>
     </Dialog>
   );
 };
