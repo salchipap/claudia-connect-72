@@ -5,6 +5,7 @@ import Button from './Button';
 import { useToast } from "@/hooks/use-toast";
 import { registerUserWithWebhook } from '@/utils/api';
 import VerificationModal from './VerificationModal';
+import { Lock, Mail, Phone, User } from 'lucide-react';
 
 type RegistrationModalProps = {
   isOpen: boolean;
@@ -22,6 +23,8 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   
@@ -34,6 +37,8 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
         setLastname('');
         setEmail('');
         setPhone('');
+        setPassword('');
+        setConfirmPassword('');
       }, 300);
     }
   };
@@ -77,6 +82,24 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
       return false;
     }
     
+    if (password.length < 6) {
+      toast({
+        title: "Error",
+        description: "La contraseña debe tener al menos 6 caracteres.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    if (password !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Las contraseñas no coinciden.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
     return true;
   };
   
@@ -96,6 +119,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
         lastname,
         email,
         remotejid: formattedPhone,
+        password,
       });
       
       if (response.success) {
@@ -147,60 +171,108 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   <label htmlFor="name" className="block text-sm font-medium mb-1 text-claudia-white">
                     Nombre
                   </label>
-                  <input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="Tu nombre"
-                    disabled={isLoading}
-                  />
+                  <div className="relative">
+                    <input
+                      id="name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
+                      placeholder="Tu nombre"
+                      disabled={isLoading}
+                    />
+                    <User className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
+                  </div>
                 </div>
                 
                 <div>
                   <label htmlFor="lastname" className="block text-sm font-medium mb-1 text-claudia-white">
                     Apellido
                   </label>
-                  <input
-                    id="lastname"
-                    type="text"
-                    value={lastname}
-                    onChange={(e) => setLastname(e.target.value)}
-                    className="w-full px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="Tu apellido"
-                    disabled={isLoading}
-                  />
+                  <div className="relative">
+                    <input
+                      id="lastname"
+                      type="text"
+                      value={lastname}
+                      onChange={(e) => setLastname(e.target.value)}
+                      className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
+                      placeholder="Tu apellido"
+                      disabled={isLoading}
+                    />
+                    <User className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
+                  </div>
                 </div>
                 
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium mb-1 text-claudia-white">
                     Correo electrónico
                   </label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="nombre@ejemplo.com"
-                    disabled={isLoading}
-                  />
+                  <div className="relative">
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
+                      placeholder="nombre@ejemplo.com"
+                      disabled={isLoading}
+                    />
+                    <Mail className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
+                  </div>
                 </div>
                 
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium mb-1 text-claudia-white">
                     Número de teléfono (WhatsApp)
                   </label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="+573128310805"
-                    disabled={isLoading}
-                  />
+                  <div className="relative">
+                    <input
+                      id="phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
+                      placeholder="+573128310805"
+                      disabled={isLoading}
+                    />
+                    <Phone className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
+                  </div>
+                </div>
+                
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium mb-1 text-claudia-white">
+                    Contraseña
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
+                      placeholder="Mínimo 6 caracteres"
+                      disabled={isLoading}
+                    />
+                    <Lock className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
+                  </div>
+                </div>
+                
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1 text-claudia-white">
+                    Confirmar Contraseña
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="confirmPassword"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
+                      placeholder="Confirma tu contraseña"
+                      disabled={isLoading}
+                    />
+                    <Lock className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
+                  </div>
                 </div>
                 
                 <div className="flex justify-end space-x-3 pt-2">

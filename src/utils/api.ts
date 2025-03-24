@@ -6,6 +6,7 @@ type VerificationRequest = {
   lastname: string;
   email: string;
   remotejid: string;
+  password: string; // Añadimos el campo de contraseña
 };
 
 type VerificationResponse = {
@@ -20,6 +21,17 @@ type CodeVerificationRequest = {
 };
 
 type CodeVerificationResponse = {
+  success: boolean;
+  message: string;
+  error?: string;
+};
+
+type LoginRequest = {
+  phone: string;
+  password: string;
+};
+
+type LoginResponse = {
   success: boolean;
   message: string;
   error?: string;
@@ -97,6 +109,45 @@ export const verifyCodeWithWebhook = async (verificationData: CodeVerificationRe
     return { 
       success: false, 
       message: 'Error al verificar el código.',
+      error: error instanceof Error ? error.message : 'Error desconocido'
+    };
+  }
+};
+
+// Function to login user
+export const loginUser = async (loginData: LoginRequest): Promise<LoginResponse> => {
+  try {
+    console.log('Sending login data:', loginData);
+    
+    // Aquí normalmente llamaríamos a un endpoint de login,
+    // por ahora usaremos el mismo webhook para simular
+    const response = await fetch('https://nn.tumejorversionhoy.shop/webhook/9d6e3fae-6700-4314-aa41-8e1dadae0de1', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...loginData,
+        action: 'login'
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Login response:', data);
+    
+    return { 
+      success: true, 
+      message: 'Inicio de sesión exitoso' 
+    };
+  } catch (error) {
+    console.error('Error logging in:', error);
+    return { 
+      success: false, 
+      message: 'Error al iniciar sesión.',
       error: error instanceof Error ? error.message : 'Error desconocido'
     };
   }
