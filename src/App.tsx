@@ -20,7 +20,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/register" element={<Registration />} />
-            {/* Login ahora se maneja a través de un modal, no necesita ruta */}
+            <Route path="/faq" element={<NotFound />} />
+            {/* Add a placeholder FAQ page that uses the NotFound component for now */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
