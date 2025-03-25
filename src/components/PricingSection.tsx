@@ -24,25 +24,10 @@ const PricingSection: React.FC = () => {
   const pricingTiers = [{
     name: 'Básico',
     price: 'Gratis',
-    description: 'Ideal para comenzar a explorar las capacidades de ClaudIA.',
-    features: ['Búsquedas simples en internet', '5 traducciones al día', 'Respuestas a preguntas básicas', 'Extracción de texto limitada'],
+    description: 'Servicio gratuito con 5 mensajes diarios para cualquier uso.',
+    features: ['5 mensajes diarios', 'Búsquedas en internet', 'Traducciones', 'Respuestas a preguntas', 'Extracción de texto'],
     cta: 'Comenzar gratis',
     onClick: () => handlePricingClick('Básico')
-  }, {
-    name: 'Profesional',
-    price: '$24.99',
-    description: 'Para profesionales que necesitan más potencia y capacidades.',
-    features: ['Búsquedas avanzadas e inteligentes', 'Traducciones ilimitadas', 'Análisis detallado de documentos', 'Extracción de texto completa', 'Soporte prioritario'],
-    cta: 'Suscribirme',
-    highlight: true,
-    onClick: () => handlePricingClick('Profesional')
-  }, {
-    name: 'Empresarial',
-    price: '$49.99',
-    description: 'Solución completa para equipos y empresas.',
-    features: ['Todo lo de Profesional', 'Múltiples usuarios', 'Integraciones personalizadas', 'Análisis avanzado de imágenes', 'Soporte dedicado 24/7', 'API para desarrolladores'],
-    cta: 'Contactar ventas',
-    onClick: () => handlePricingClick('Empresarial')
   }, {
     name: 'Tokens',
     price: 'Desde $0.24 USD',
@@ -66,7 +51,7 @@ const PricingSection: React.FC = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {pricingTiers.map((tier, index) => <PricingCard key={index} tier={tier} delay={index * 150} />)}
         </div>
         
