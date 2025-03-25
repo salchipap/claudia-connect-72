@@ -1,8 +1,6 @@
-
 import React from 'react';
 import Button from './Button';
 import { ArrowRight } from 'lucide-react';
-
 const HeroSection: React.FC = () => {
   return <section className="min-h-screen flex flex-col items-center justify-center pt-20 px-6 relative overflow-hidden">
       {/* Abstract Background */}
@@ -18,14 +16,10 @@ const HeroSection: React.FC = () => {
       <div className="max-w-4xl mx-auto text-center relative z-10">
         {/* Added Image */}
         <div className="mb-6 flex justify-center">
-          <img 
-            src="https://img.recraft.ai/TPT2gnDTOAplVWXdKprcxYJZGSC82p_p5DJzbNYpSyU/rs:fit:1024:1024:0/q:95/g:no/plain/abs://prod/images/8fbdfedc-79e6-4ae5-9912-89c9048c67d8@jpg" 
-            alt="ClaudIA" 
-            className="rounded-lg w-48 h-48 object-cover animate-fade-in shadow-lg"
-          />
+          <img src="https://img.recraft.ai/TPT2gnDTOAplVWXdKprcxYJZGSC82p_p5DJzbNYpSyU/rs:fit:1024:1024:0/q:95/g:no/plain/abs://prod/images/8fbdfedc-79e6-4ae5-9912-89c9048c67d8@jpg" alt="ClaudIA" className="rounded-lg w-48 h-48 object-cover animate-fade-in shadow-lg" />
         </div>
         
-        <div className="inline-block px-3 py-1 rounded-full bg-claudia-secondary bg-opacity-30 text-claudia-primary text-sm font-medium mb-6 animate-fade-in">
+        <div className="inline-block px-3 py-1 rounded-full bg-opacity-30 text-claudia-primary text-sm font-medium mb-6 animate-fade-in bg-inherit">
           Inteligencia artificial avanzada
         </div>
         
