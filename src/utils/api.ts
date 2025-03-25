@@ -1,4 +1,3 @@
-
 // API utility functions for handling webhook calls
 
 type VerificationRequest = {
@@ -34,6 +33,19 @@ type LoginRequest = {
 type LoginResponse = {
   success: boolean;
   message: string;
+  error?: string;
+};
+
+type TokenPurchaseRequest = {
+  amount: number;
+  currency: 'USD' | 'COP';
+  phone?: string;
+};
+
+type TokenPurchaseResponse = {
+  success: boolean;
+  message: string;
+  tokensAdded?: number;
   error?: string;
 };
 
@@ -148,6 +160,32 @@ export const loginUser = async (loginData: LoginRequest): Promise<LoginResponse>
     return { 
       success: false, 
       message: 'Error al iniciar sesión.',
+      error: error instanceof Error ? error.message : 'Error desconocido'
+    };
+  }
+};
+
+// Function to purchase tokens
+export const purchaseTokens = async (purchaseData: TokenPurchaseRequest): Promise<TokenPurchaseResponse> => {
+  try {
+    console.log('Processing token purchase:', purchaseData);
+    
+    // Here we would normally call a payment processing API
+    // For now, we'll simulate a successful purchase
+    
+    // Calculate tokens based on amount and currency
+    const tokensAdded = purchaseData.amount;
+    
+    return { 
+      success: true, 
+      message: 'Compra de tokens exitosa',
+      tokensAdded
+    };
+  } catch (error) {
+    console.error('Error purchasing tokens:', error);
+    return { 
+      success: false, 
+      message: 'Error al procesar la compra de tokens.',
       error: error instanceof Error ? error.message : 'Error desconocido'
     };
   }
