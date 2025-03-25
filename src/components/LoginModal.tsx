@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Lock, Phone } from 'lucide-react';
+import CountrySelect from '@/components/CountrySelect';
 
 type LoginModalProps = {
   isOpen: boolean;
@@ -17,7 +18,7 @@ type LoginModalProps = {
 };
 
 const loginSchema = z.object({
-  phone: z.string().min(10, 'El número de teléfono debe tener al menos 10 dígitos'),
+  phoneNumber: z.string().min(6, 'El número de teléfono debe tener al menos 6 dígitos'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres')
 });
 
@@ -29,11 +30,12 @@ const LoginModal: React.FC<LoginModalProps> = ({
 }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [countryCode, setCountryCode] = useState('+57');
   
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      phone: '',
+      phoneNumber: '',
       password: ''
     }
   });
@@ -49,8 +51,11 @@ const LoginModal: React.FC<LoginModalProps> = ({
     setIsLoading(true);
     
     try {
+      // Combine country code and phone number
+      const fullPhoneNumber = `${countryCode}${values.phoneNumber}`;
+      
       // Format phone number with WhatsApp format
-      const formattedPhone = values.phone.startsWith('+') ? values.phone.substring(1) : values.phone;
+      const formattedPhone = fullPhoneNumber.startsWith('+') ? fullPhoneNumber.substring(1) : fullPhoneNumber;
       
       const response = await loginUser({
         phone: formattedPhone,
@@ -101,20 +106,27 @@ const LoginModal: React.FC<LoginModalProps> = ({
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="phone"
+                  name="phoneNumber"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-claudia-white">Número de WhatsApp</FormLabel>
-                      <div className="relative">
-                        <FormControl>
-                          <Input
-                            placeholder="+573128310805"
-                            className="pl-9 bg-[#1a2a30] border-claudia-primary/30 text-claudia-white"
-                            disabled={isLoading}
-                            {...field}
-                          />
-                        </FormControl>
-                        <Phone className="absolute left-3 top-3 h-4 w-4 text-claudia-primary/70" />
+                      <div className="flex gap-2">
+                        <CountrySelect 
+                          value={countryCode}
+                          onChange={setCountryCode}
+                          disabled={isLoading}
+                        />
+                        <div className="relative flex-1">
+                          <FormControl>
+                            <Input
+                              placeholder="3128310805"
+                              className="pl-9 bg-[#1a2a30] border-claudia-primary/30 text-claudia-white"
+                              disabled={isLoading}
+                              {...field}
+                            />
+                          </FormControl>
+                          <Phone className="absolute left-3 top-3 h-4 w-4 text-claudia-primary/70" />
+                        </div>
                       </div>
                       <FormMessage className="text-red-400" />
                     </FormItem>
