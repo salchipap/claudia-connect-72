@@ -8,6 +8,7 @@ import Button from '@/components/Button';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Mail, Phone, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import CountrySelect from '@/components/CountrySelect';
 
 const Registration = () => {
   const { toast } = useToast();
@@ -15,7 +16,8 @@ const Registration = () => {
   const [name, setName] = useState('');
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+57');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -50,11 +52,12 @@ const Registration = () => {
       return false;
     }
     
-    const phoneRegex = /^\d{10,15}$/;
-    if (!phoneRegex.test(phone.replace(/\D/g, ''))) {
+    // Validate phone number without country code
+    const phoneRegex = /^\d{7,15}$/;
+    if (!phoneRegex.test(phoneNumber.replace(/\D/g, ''))) {
       toast({
         title: "Error",
-        description: "Por favor, ingresa un número de teléfono válido.",
+        description: "Por favor, ingresa un número de teléfono válido (solo números).",
         variant: "destructive",
       });
       return false;
@@ -89,8 +92,10 @@ const Registration = () => {
     setIsLoading(true);
     
     try {
+      // Combine country code and phone number
+      const fullPhoneNumber = `${countryCode}${phoneNumber}`;
       // Format phone number with WhatsApp format for remotejid
-      const formattedPhone = phone.startsWith('+') ? phone.substring(1) : phone;
+      const formattedPhone = fullPhoneNumber.startsWith('+') ? fullPhoneNumber.substring(1) : fullPhoneNumber;
       
       const response = await registerUserWithWebhook({
         name,
@@ -201,17 +206,24 @@ const Registration = () => {
                 <label htmlFor="phone" className="block text-sm font-medium mb-1 text-claudia-white">
                   Número de teléfono (WhatsApp)
                 </label>
-                <div className="relative">
-                  <input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="+573128310805"
+                <div className="flex gap-2">
+                  <CountrySelect 
+                    value={countryCode}
+                    onChange={setCountryCode}
                     disabled={isLoading}
                   />
-                  <Phone className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
+                  <div className="relative flex-1">
+                    <input
+                      id="phone"
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
+                      placeholder="3128310805"
+                      disabled={isLoading}
+                    />
+                    <Phone className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
+                  </div>
                 </div>
               </div>
               
