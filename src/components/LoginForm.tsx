@@ -21,6 +21,13 @@ const LoginForm = () => {
     toggleLoginMethod
   } = useLoginForm();
 
+  // Manejar el cambio del número telefónico, eliminando cualquier caracter no numérico
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Remover caracteres no numéricos para asegurar que solo se ingresen números
+    const numericValue = e.target.value.replace(/\D/g, '');
+    setIdentifier(numericValue);
+  };
+
   return (
     <div className="max-w-md mx-auto bg-[#1a2a30] rounded-lg shadow-xl p-8 relative overflow-hidden">
       {/* Decorative elements */}
@@ -59,9 +66,11 @@ const LoginForm = () => {
               <div className="relative flex-1">
                 <input
                   id="identifier"
-                  type="text"
+                  type="tel" 
+                  pattern="[0-9]*"
+                  inputMode="numeric"
                   value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
+                  onChange={handlePhoneChange}
                   className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
                   placeholder="3128310805"
                   disabled={isLoading}

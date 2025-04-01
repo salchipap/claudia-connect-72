@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
-import { format, isSameDay, isBefore, startOfDay } from "date-fns";
+import { format, isSameDay, isBefore, startOfDay, set } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,6 +19,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -35,6 +44,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+// Schema de validación para el formulario
+const reminderFormSchema = z.object({
+  title: z.string().min(1, { message: "El título es obligatorio" }),
+  message: z.string().min(1, { message: "El mensaje es obligatorio" }),
+  description: z.string().optional(),
+  time: z.string().min(1, { message: "La hora es obligatoria" }),
+});
+
+type ReminderFormValues = z.infer<typeof reminderFormSchema>;
 
 const ReminderCalendar = () => {
   // Initialize with current date
@@ -45,15 +67,20 @@ const ReminderCalendar = () => {
   const [reminderDates, setReminderDates] = useState<Date[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
-  const [newReminder, setNewReminder] = useState({
-    title: '',
-    message: '',
-    description: '',
-    send_date: '',
-  });
   const [creatingReminder, setCreatingReminder] = useState(false);
   const { user, userProfile } = useAuth();
   const { toast } = useToast();
+
+  // Inicializar react-hook-form
+  const form = useForm<ReminderFormValues>({
+    resolver: zodResolver(reminderFormSchema),
+    defaultValues: {
+      title: "",
+      message: "",
+      description: "",
+      time: format(new Date().setMinutes(Math.ceil(new Date().getMinutes() / 5) * 5), "HH:mm"),
+    },
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -95,42 +122,39 @@ const ReminderCalendar = () => {
     );
   };
 
-  const handleCreateReminder = async () => {
+  const onSubmit = async (data: ReminderFormValues) => {
     if (!user || !selectedDate) return;
-    
-    if (!newReminder.title.trim() || !newReminder.message.trim() || !newReminder.send_date) {
-      toast({
-        title: "Campos obligatorios",
-        description: "Por favor complete los campos requeridos",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Validate send date is not in the past
-    const sendDate = new Date(newReminder.send_date);
-    if (isBefore(sendDate, new Date())) {
-      toast({
-        title: "Fecha inválida",
-        description: "La fecha de envío no puede ser en el pasado",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Verificar si el usuario tiene recordatorios disponibles
-    if (!userProfile?.reminders || parseInt(userProfile.reminders) <= 0) {
-      toast({
-        title: "Sin recordatorios disponibles",
-        description: "Has alcanzado el límite de recordatorios disponibles",
-        variant: "destructive",
-      });
-      return;
-    }
     
     setCreatingReminder(true);
     
     try {
+      // Crear fecha de envío combinando la fecha seleccionada con la hora elegida
+      const [hours, minutes] = data.time.split(':').map(Number);
+      const sendDate = new Date(selectedDate);
+      sendDate.setHours(hours, minutes, 0, 0);
+      
+      // Validar que la fecha de envío no sea en el pasado
+      if (isBefore(sendDate, new Date())) {
+        toast({
+          title: "Fecha inválida",
+          description: "La hora de envío no puede ser en el pasado",
+          variant: "destructive",
+        });
+        setCreatingReminder(false);
+        return;
+      }
+      
+      // Verificar si el usuario tiene recordatorios disponibles
+      if (!userProfile?.reminders || parseInt(userProfile.reminders) <= 0) {
+        toast({
+          title: "Sin recordatorios disponibles",
+          description: "Has alcanzado el límite de recordatorios disponibles",
+          variant: "destructive",
+        });
+        setCreatingReminder(false);
+        return;
+      }
+      
       let phoneNumber = '';
       
       if (userProfile?.remotejid) {
@@ -150,9 +174,9 @@ const ReminderCalendar = () => {
       
       const reminderData = {
         user_id: user.id,
-        title: newReminder.title,
-        message: newReminder.message,
-        description: newReminder.description || null,
+        title: data.title,
+        message: data.message,
+        description: data.description || null,
         date: selectedDate.toISOString(),
         send_date: sendDate.toISOString(),
         remotejid: phoneNumber,
@@ -163,15 +187,15 @@ const ReminderCalendar = () => {
       console.log('Datos del recordatorio a guardar:', reminderData);
       
       // Crear el recordatorio
-      const { data, error } = await supabase
+      const { data: reminderResponse, error } = await supabase
         .from('reminders')
         .insert(reminderData)
         .select();
         
       if (error) throw error;
       
-      if (data && data.length > 0) {
-        const newReminderData = data[0] as Reminder;
+      if (reminderResponse && reminderResponse.length > 0) {
+        const newReminderData = reminderResponse[0] as Reminder;
         setReminders([...reminders, newReminderData]);
         
         setReminderDates([...reminderDates, selectedDate]);
@@ -198,12 +222,7 @@ const ReminderCalendar = () => {
           description: "Tu recordatorio ha sido programado exitosamente",
         });
         
-        setNewReminder({
-          title: '',
-          message: '',
-          description: '',
-          send_date: '',
-        });
+        form.reset();
         setIsCreateDialogOpen(false);
       }
     } catch (error: any) {
@@ -266,7 +285,10 @@ const ReminderCalendar = () => {
             <h2 className="text-2xl font-bold text-claudia-white">Calendario de Recordatorios</h2>
           </div>
           <Button 
-            onClick={() => setIsCreateDialogOpen(true)}
+            onClick={() => {
+              form.reset();
+              setIsCreateDialogOpen(true);
+            }}
             className="bg-claudia-primary hover:bg-claudia-primary/80 text-claudia-white"
           >
             <Plus className="h-4 w-4 mr-2" /> Crear Recordatorio
@@ -353,7 +375,10 @@ const ReminderCalendar = () => {
                     variant="ghost" 
                     size="sm" 
                     className="text-claudia-primary hover:text-claudia-white hover:bg-claudia-primary/20"
-                    onClick={() => setIsCreateDialogOpen(true)}
+                    onClick={() => {
+                      form.reset();
+                      setIsCreateDialogOpen(true);
+                    }}
                   >
                     <Plus className="h-4 w-4 mr-1" /> Nuevo
                   </Button>
@@ -401,7 +426,10 @@ const ReminderCalendar = () => {
                         <Button 
                           variant="outline" 
                           className="mt-2 border-claudia-primary text-claudia-primary hover:bg-claudia-primary/10"
-                          onClick={() => setIsCreateDialogOpen(true)}
+                          onClick={() => {
+                            form.reset();
+                            setIsCreateDialogOpen(true);
+                          }}
                         >
                           <Plus className="h-4 w-4 mr-2" /> Crear Recordatorio
                         </Button>
@@ -427,96 +455,124 @@ const ReminderCalendar = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 py-2">
-            <div className="p-3 bg-[#142126]/70 rounded-md flex items-center gap-2 text-sm">
-              <Phone className="h-4 w-4 text-claudia-primary" />
-              <span className="text-claudia-white/80">
-                Número de teléfono: {userProfile?.remotejid || user?.user_metadata?.remotejid || 'No disponible'}
-              </span>
-              {!userProfile?.remotejid && !user?.user_metadata?.remotejid && (
-                <div className="ml-auto px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs rounded-full">
-                  ¡Importante!
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="title" className="text-claudia-white">Título</Label>
-              <Input 
-                id="title" 
-                placeholder="Título del recordatorio" 
-                className="bg-[#142126] border-claudia-primary/20 text-claudia-white"
-                value={newReminder.title}
-                onChange={(e) => setNewReminder({...newReminder, title: e.target.value})}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
+              <div className="p-3 bg-[#142126]/70 rounded-md flex items-center gap-2 text-sm">
+                <Phone className="h-4 w-4 text-claudia-primary" />
+                <span className="text-claudia-white/80">
+                  Número de teléfono: {userProfile?.remotejid || user?.user_metadata?.remotejid || 'No disponible'}
+                </span>
+                {!userProfile?.remotejid && !user?.user_metadata?.remotejid && (
+                  <div className="ml-auto px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs rounded-full">
+                    ¡Importante!
+                  </div>
+                )}
+              </div>
+              
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-claudia-white">Título</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Título del recordatorio" 
+                        className="bg-[#142126] border-claudia-primary/20 text-claudia-white"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="message" className="text-claudia-white">Mensaje</Label>
-              <Textarea 
-                id="message" 
-                placeholder="Contenido del recordatorio" 
-                className="bg-[#142126] border-claudia-primary/20 text-claudia-white"
-                value={newReminder.message}
-                onChange={(e) => setNewReminder({...newReminder, message: e.target.value})}
+              
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-claudia-white">Mensaje</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Contenido del recordatorio" 
+                        className="bg-[#142126] border-claudia-primary/20 text-claudia-white"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="description" className="text-claudia-white">Descripción (opcional)</Label>
-              <Textarea 
-                id="description" 
-                placeholder="Detalles adicionales" 
-                className="bg-[#142126] border-claudia-primary/20 text-claudia-white"
-                value={newReminder.description}
-                onChange={(e) => setNewReminder({...newReminder, description: e.target.value})}
+              
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-claudia-white">Descripción (opcional)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Detalles adicionales" 
+                        className="bg-[#142126] border-claudia-primary/20 text-claudia-white"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="send_date" className="text-claudia-white flex items-center gap-1">
-                <Clock className="h-4 w-4 text-claudia-primary" />
-                Fecha y hora de envío
-              </Label>
-              <Input 
-                id="send_date" 
-                type="datetime-local" 
-                className="bg-[#142126] border-claudia-primary/20 text-claudia-white"
-                value={newReminder.send_date}
-                onChange={(e) => setNewReminder({...newReminder, send_date: e.target.value})}
-                min={new Date().toISOString().slice(0, 16)} // Prevent dates in the past
+              
+              <FormField
+                control={form.control}
+                name="time"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-claudia-white flex items-center gap-1">
+                      <Clock className="h-4 w-4 text-claudia-primary" />
+                      Hora de envío
+                    </FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="time" 
+                        className="bg-[#142126] border-claudia-primary/20 text-claudia-white"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => setIsCreateDialogOpen(false)}
-              className="border-claudia-primary/20 text-claudia-white hover:bg-[#142126]"
-            >
-              Cancelar
-            </Button>
-            <Button 
-              type="button" 
-              onClick={handleCreateReminder}
-              className="bg-claudia-primary text-claudia-white hover:bg-claudia-primary/80"
-              disabled={creatingReminder}
-            >
-              {creatingReminder ? (
-                <>
-                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-claudia-white border-t-transparent rounded-full" />
-                  Creando...
-                </>
-              ) : (
-                <>
-                  <Check className="h-4 w-4 mr-2" />
-                  Crear Recordatorio
-                </>
-              )}
-            </Button>
-          </DialogFooter>
+              
+              <DialogFooter className="mt-6">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setIsCreateDialogOpen(false)}
+                  className="border-claudia-primary/20 text-claudia-white hover:bg-[#142126]"
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit"
+                  className="bg-claudia-primary text-claudia-white hover:bg-claudia-primary/80"
+                  disabled={creatingReminder}
+                >
+                  {creatingReminder ? (
+                    <>
+                      <div className="animate-spin mr-2 h-4 w-4 border-2 border-claudia-white border-t-transparent rounded-full" />
+                      Creando...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4 mr-2" />
+                      Crear Recordatorio
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>
