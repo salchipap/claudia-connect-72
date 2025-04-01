@@ -52,7 +52,7 @@ const NavBar: React.FC = () => {
             {userProfile && (
               <div className="hidden md:flex items-center gap-2 text-claudia-white/70">
                 <Pizza size={16} className="text-claudia-primary" />
-                <span>{userProfile.credits || '0'} panes</span>
+                <span>{userProfile.credits || '0'} mensajes</span>
               </div>
             )}
             <Button 

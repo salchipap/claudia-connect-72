@@ -104,7 +104,7 @@ const Dashboard = () => {
                 <div className="p-3">
                   <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
                     <Pizza size={18} className="text-claudia-primary" />
-                    <span>{userProfile.credits || '0'} panes disponibles</span>
+                    <span>{userProfile.credits || '0'} mensajes disponibles</span>
                   </div>
                   
                   <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
