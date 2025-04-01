@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReminderCalendar from '@/components/ReminderCalendar';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, UserCircle, Mail, Calendar, MessageCircle, Phone, ExternalLink, CreditCard } from 'lucide-react';
+import { LogOut, UserCircle, Mail, Calendar, MessageCircle, Phone, ExternalLink, CreditCard, CalendarDays } from 'lucide-react';
 import Button from '@/components/Button';
 import { useToast } from '@/hooks/use-toast';
 import {

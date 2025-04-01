@@ -1,23 +1,40 @@
 
-import { Session, User } from '@supabase/supabase-js';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
-export type AuthContextType = {
-  session: Session | null;
+export interface User extends SupabaseUser {
+  // Add any additional user properties here
+}
+
+export interface UserProfile {
+  id: string;
+  name?: string;
+  lastname?: string;
+  email?: string;
+  remotejid?: string;
+  push_name?: string;
+  pic?: string;
+  status?: string;
+  last_message?: string;
+  credits?: string;
+  reminders?: string; // Add this line
+  type_user?: string;
+}
+
+export interface AuthState {
   user: User | null;
-  userProfile: any | null; // Usuario de la tabla users
-  signUp: (email: string, password: string, metadata?: { [key: string]: any }) => Promise<{
-    error: any | null;
-    data: any | null;
+  userProfile: UserProfile | null;
+  loading: boolean;
+  error: string | null;
+}
+
+export interface AuthContextType extends AuthState {
+  signIn: (email: string, password: string) => Promise<{
+    success: boolean;
+    error?: string;
   }>;
-  signIn: (
-    identifier: string, 
-    password: string, 
-    isPhoneLogin?: boolean, 
-    countryCode?: string
-  ) => Promise<{
-    error: any | null;
-    data: any | null;
+  signUp: (email: string, password: string, metadata?: { [key: string]: any }) => Promise<{
+    success: boolean;
+    error?: string;
   }>;
   signOut: () => Promise<void>;
-  loading: boolean;
-};
+}
