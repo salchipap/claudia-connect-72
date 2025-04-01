@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { format, isSameDay } from "date-fns";
@@ -54,7 +53,6 @@ const ReminderCalendar = () => {
   const { user, userProfile } = useAuth();
   const { toast } = useToast();
 
-  // Fetch reminders from Supabase
   useEffect(() => {
     if (!user) return;
 
@@ -71,7 +69,6 @@ const ReminderCalendar = () => {
         const formattedReminders = data as Reminder[];
         setReminders(formattedReminders);
 
-        // Extract unique dates for highlighting in calendar
         const dates = formattedReminders.map(reminder => new Date(reminder.date));
         setReminderDates(dates);
       } catch (error: any) {
@@ -89,7 +86,6 @@ const ReminderCalendar = () => {
     fetchReminders();
   }, [user, toast]);
 
-  // Get reminders for the selected date
   const getRemindersForSelectedDate = () => {
     if (!selectedDate) return [];
     return reminders.filter(reminder => 
@@ -97,7 +93,6 @@ const ReminderCalendar = () => {
     );
   };
 
-  // Handle reminder creation
   const handleCreateReminder = async () => {
     if (!user || !selectedDate) return;
     
@@ -115,9 +110,22 @@ const ReminderCalendar = () => {
     try {
       const sendDate = new Date(newReminder.send_date);
       
-      // Siempre usar el número de teléfono (remotejid) del perfil del usuario
-      // Si no está disponible, usar un valor predeterminado para no bloquear la funcionalidad
-      const phoneNumber = userProfile?.remotejid || 'sin-telefono';
+      let phoneNumber = '';
+      
+      if (userProfile?.remotejid) {
+        phoneNumber = userProfile.remotejid;
+      } else if (user?.user_metadata?.remotejid) {
+        phoneNumber = user.user_metadata.remotejid;
+      } else {
+        toast({
+          title: "Advertencia",
+          description: "No tienes un número de teléfono configurado. El recordatorio se guardará pero no podrá enviarse.",
+          variant: "warning",
+        });
+        phoneNumber = 'sin-telefono';
+      }
+      
+      console.log('Número de teléfono usado para el recordatorio:', phoneNumber);
       
       const reminderData = {
         user_id: user.id,
@@ -126,10 +134,12 @@ const ReminderCalendar = () => {
         description: newReminder.description || null,
         date: selectedDate.toISOString(),
         send_date: sendDate.toISOString(),
-        remotejid: phoneNumber, // Siempre usar el número de teléfono, nunca el correo
+        remotejid: phoneNumber,
         status: 'pending',
         origin: 'manual',
       };
+      
+      console.log('Datos del recordatorio a guardar:', reminderData);
       
       const { data, error } = await supabase
         .from('reminders')
@@ -138,12 +148,10 @@ const ReminderCalendar = () => {
         
       if (error) throw error;
       
-      // Add the new reminder to state
       if (data && data.length > 0) {
         const newReminderData = data[0] as Reminder;
         setReminders([...reminders, newReminderData]);
         
-        // Update calendar highlighted dates
         setReminderDates([...reminderDates, selectedDate]);
         
         toast({
@@ -151,7 +159,6 @@ const ReminderCalendar = () => {
           description: "Tu recordatorio ha sido programado exitosamente",
         });
         
-        // Reset form and close dialog
         setNewReminder({
           title: '',
           message: '',
@@ -359,7 +366,6 @@ const ReminderCalendar = () => {
         </div>
       </div>
 
-      {/* Create Reminder Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="bg-[#1a2a30] text-claudia-white border-claudia-primary/20 max-w-md">
           <DialogHeader>
@@ -373,15 +379,14 @@ const ReminderCalendar = () => {
           </DialogHeader>
           
           <div className="space-y-4 py-2">
-            {/* Display the user's phone number that will be used */}
             <div className="p-3 bg-[#142126]/70 rounded-md flex items-center gap-2 text-sm">
               <Phone className="h-4 w-4 text-claudia-primary" />
               <span className="text-claudia-white/80">
-                Número de teléfono: {userProfile?.remotejid || 'No disponible'}
+                Número de teléfono: {userProfile?.remotejid || user?.user_metadata?.remotejid || 'No disponible'}
               </span>
-              {!userProfile?.remotejid && (
+              {!userProfile?.remotejid && !user?.user_metadata?.remotejid && (
                 <div className="ml-auto px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs rounded-full">
-                  Opcional
+                  ¡Importante!
                 </div>
               )}
             </div>

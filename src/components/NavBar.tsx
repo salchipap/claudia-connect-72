@@ -5,7 +5,7 @@ import Button from './Button';
 import LoginModal from './LoginModal';
 import RegistrationModal from './RegistrationModal';
 import { useAuth } from '@/hooks/useAuth';
-import { UserCircle, Pizza } from 'lucide-react';
+import { UserCircle, Pizza, Phone } from 'lucide-react';
 
 const NavBar: React.FC = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -32,13 +32,22 @@ const NavBar: React.FC = () => {
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+    try {
+      await signOut();
+      // No navegar manualmente, signOut.ts se encarga de la redirección
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
   };
 
   const goToProfile = () => {
     navigate('/dashboard');
   };
+
+  // Extraer número de teléfono del usuario desde remotejid o user_metadata
+  const userPhoneNumber = userProfile?.remotejid || 
+                          (user?.user_metadata?.remotejid) || 
+                          null;
 
   return (
     <nav className="bg-[#142126] p-4 flex items-center justify-between text-claudia-foreground">
@@ -55,6 +64,14 @@ const NavBar: React.FC = () => {
                 <span>{userProfile.credits || '0'} mensajes</span>
               </div>
             )}
+            
+            {userPhoneNumber && (
+              <div className="hidden md:flex items-center gap-2 text-claudia-white/70">
+                <Phone size={16} className="text-claudia-primary" />
+                <span>{userPhoneNumber}</span>
+              </div>
+            )}
+            
             <Button 
               onClick={goToProfile} 
               variant="ghost"
@@ -63,7 +80,11 @@ const NavBar: React.FC = () => {
               <UserCircle size={20} />
               <span className="hidden md:inline">{userProfile?.name || 'Mi perfil'}</span>
             </Button>
-            <Button onClick={handleSignOut} variant="ghost" className="text-claudia-white hover:text-claudia-primary">
+            <Button 
+              onClick={handleSignOut} 
+              variant="ghost" 
+              className="text-claudia-white hover:text-claudia-primary"
+            >
               Cerrar Sesión
             </Button>
           </div>

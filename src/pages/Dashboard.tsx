@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReminderCalendar from '@/components/ReminderCalendar';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, UserCircle, Mail, Calendar, Pizza } from 'lucide-react';
+import { LogOut, UserCircle, Mail, Calendar, Pizza, Phone } from 'lucide-react';
 import Button from '@/components/Button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -35,7 +35,7 @@ const Dashboard = () => {
         title: "Sesión cerrada",
         description: "Has cerrado sesión correctamente",
       });
-      navigate('/');
+      // No es necesario navegar aquí ya que signOut.ts maneja la redirección
     } catch (error: any) {
       console.error('Error al cerrar sesión:', error);
       toast({
@@ -43,7 +43,6 @@ const Dashboard = () => {
         description: "No se pudo cerrar sesión. Inténtalo de nuevo.",
         variant: "destructive",
       });
-    } finally {
       setIsLoggingOut(false);
     }
   };
@@ -59,6 +58,11 @@ const Dashboard = () => {
   if (!user || !userProfile) {
     return null; // No renderizar nada mientras se redirige
   }
+
+  // Extraer número de teléfono del usuario desde remotejid o user_metadata
+  const userPhoneNumber = userProfile.remotejid || 
+                         (user.user_metadata?.remotejid) || 
+                         'No disponible';
 
   return (
     <div className="min-h-screen bg-[#142126] text-claudia-foreground relative">
@@ -105,8 +109,13 @@ const Dashboard = () => {
                   </div>
                   
                   <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
+                    <Phone size={18} className="text-claudia-primary" />
+                    <span>Tel: {userPhoneNumber}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
                     <Mail size={18} className="text-claudia-primary" />
-                    <span>{userProfile.remotejid || 'No disponible'}</span>
+                    <span>{user.email || userProfile.email || 'No disponible'}</span>
                   </div>
                   
                   <div className="flex items-center gap-2 p-2 text-claudia-white">
