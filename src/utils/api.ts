@@ -1,208 +1,80 @@
 
-// API utility functions for handling webhook calls
+// API utilities for external services
 
-type VerificationRequest = {
-  name: string;
-  lastname: string;
+/**
+ * Send verification code to WhatsApp via webhook
+ */
+export const sendCodeToWhatsApp = async (userData: { 
   email: string;
-  remotejid: string;
-  password: string; // Añadimos el campo de contraseña
-};
-
-type VerificationResponse = {
-  success: boolean;
-  message: string;
-  error?: string;
-};
-
-type CodeVerificationRequest = {
-  code: string;
-  email: string;
-};
-
-type CodeVerificationResponse = {
-  success: boolean;
-  message: string;
-  error?: string;
-};
-
-type LoginRequest = {
-  phone: string;
-  password: string;
-};
-
-type LoginResponse = {
-  success: boolean;
-  message: string;
-  error?: string;
-};
-
-type TokenPurchaseRequest = {
-  amount: number;
-  currency: 'USD' | 'COP';
   phone?: string;
-};
-
-type TokenPurchaseResponse = {
-  success: boolean;
-  message: string;
-  tokensAdded?: number;
-  error?: string;
-};
-
-// Function to send user registration data to webhook
-export const registerUserWithWebhook = async (userData: VerificationRequest): Promise<VerificationResponse> => {
+}) => {
   try {
-    console.log('Sending registration data to webhook:', userData);
-    
-    // Establecer un timeout para la solicitud fetch
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos de timeout
-    
-    const response = await fetch('https://nn.tumejorversionhoy.shop/webhook/9d6e3fae-6700-4314-aa41-8e1dadae0de1', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userData),
-      signal: controller.signal
-    }).finally(() => {
-      clearTimeout(timeoutId);
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    console.log('Registration webhook response:', data);
-    
-    return { 
-      success: true, 
-      message: 'Registro exitoso, por favor verifica tu código.' 
-    };
-  } catch (error) {
-    console.error('Error registering user:', error);
-    return { 
-      success: false, 
-      message: 'Error al registrar usuario.',
-      error: error instanceof Error ? error.message : 'Error desconocido'
-    };
-  }
-};
-
-// Function to verify code through webhook
-export const verifyCodeWithWebhook = async (verificationData: CodeVerificationRequest): Promise<CodeVerificationResponse> => {
-  try {
-    console.log('Sending code verification data to webhook:', verificationData);
-    
-    // Establecer un timeout para la solicitud fetch
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos de timeout
-    
     const response = await fetch('https://nn.tumejorversionhoy.shop/webhook/c1530bfd-a2c3-4c82-bb88-3e956d20b113', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(verificationData),
-      signal: controller.signal
-    }).finally(() => {
-      clearTimeout(timeoutId);
+      body: JSON.stringify({
+        action: 'send_code',
+        email: userData.email,
+        phone: userData.phone
+      }),
     });
     
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
     const data = await response.json();
-    console.log('Verification webhook response:', data);
     
-    // Here we assume the API returns a success property
-    if (data.success) {
-      return { 
-        success: true, 
-        message: 'Código verificado correctamente.' 
-      };
-    } else {
-      return { 
-        success: false, 
-        message: 'Código de verificación incorrecto.',
-        error: data.message || 'El código no coincide'
-      };
+    if (!response.ok) {
+      throw new Error(data.message || 'Error al enviar el código');
     }
-  } catch (error) {
-    console.error('Error verifying code:', error);
-    return { 
-      success: false, 
-      message: 'Error al verificar el código.',
-      error: error instanceof Error ? error.message : 'Error desconocido'
+    
+    return {
+      success: true,
+      message: data.message || 'Código enviado exitosamente'
+    };
+  } catch (error: any) {
+    console.error('Error sending code:', error);
+    return {
+      success: false,
+      message: error.message || 'Error al enviar el código'
     };
   }
 };
 
-// Function to login user
-export const loginUser = async (loginData: LoginRequest): Promise<LoginResponse> => {
+/**
+ * Verify code from webhook
+ */
+export const verifyCodeWithWebhook = async (verificationData: {
+  code: string;
+  email: string;
+}) => {
   try {
-    console.log('Sending login data:', loginData);
-    
-    // Establecer un timeout para la solicitud fetch
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 segundos de timeout
-    
-    const response = await fetch('https://nn.tumejorversionhoy.shop/webhook/9d6e3fae-6700-4314-aa41-8e1dadae0de1', {
+    const response = await fetch('https://nn.tumejorversionhoy.shop/webhook/c1530bfd-a2c3-4c82-bb88-3e956d20b113', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        ...loginData,
-        action: 'login'
+        action: 'verify_code',
+        code: verificationData.code,
+        email: verificationData.email
       }),
-      signal: controller.signal
-    }).finally(() => {
-      clearTimeout(timeoutId);
     });
     
+    const data = await response.json();
+    
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(data.message || 'Error al verificar el código');
     }
     
-    const data = await response.json();
-    console.log('Login response:', data);
-    
-    return { 
-      success: true, 
-      message: 'Inicio de sesión exitoso' 
+    return {
+      success: true,
+      message: data.message || 'Código verificado exitosamente'
     };
-  } catch (error) {
-    console.error('Error logging in:', error);
-    throw error; // Re-lanzamos el error para manejarlo en el componente
-  }
-};
-
-// Function to purchase tokens
-export const purchaseTokens = async (purchaseData: TokenPurchaseRequest): Promise<TokenPurchaseResponse> => {
-  try {
-    console.log('Processing token purchase:', purchaseData);
-    
-    // Here we would normally call a payment processing API
-    // For now, we'll simulate a successful purchase
-    
-    // Calculate tokens based on amount and currency
-    const tokensAdded = purchaseData.amount;
-    
-    return { 
-      success: true, 
-      message: 'Compra de tokens exitosa',
-      tokensAdded
-    };
-  } catch (error) {
-    console.error('Error purchasing tokens:', error);
-    return { 
-      success: false, 
-      message: 'Error al procesar la compra de tokens.',
-      error: error instanceof Error ? error.message : 'Error desconocido'
+  } catch (error: any) {
+    console.error('Error verifying code:', error);
+    return {
+      success: false,
+      message: error.message || 'Error al verificar el código'
     };
   }
 };
