@@ -1,6 +1,9 @@
+
 import React from 'react';
 import FeatureCard from './FeatureCard';
 import { Search, FileText, Image, Globe, MessageCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 const FeaturesSection: React.FC = () => {
   const features = [{
     icon: <Search size={24} />,
@@ -23,6 +26,7 @@ const FeaturesSection: React.FC = () => {
     title: 'Conversación natural',
     description: 'Interactúa de forma natural con respuestas claras, relevantes y personalizadas.'
   }];
+  
   return <section id="features" className="py-24 px-6 relative">
       {/* Background accent */}
       <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-claudia-muted to-transparent opacity-70 -z-10"></div>
@@ -33,6 +37,14 @@ const FeaturesSection: React.FC = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             ClaudIA integra tecnologías avanzadas para ofrecerte soluciones inteligentes en distintos escenarios
           </p>
+          <div className="mt-8">
+            <Link 
+              to="/know-claudia" 
+              className="inline-block px-6 py-3 bg-claudia-primary/20 text-claudia-primary hover:bg-claudia-primary/30 transition-colors rounded-lg font-medium"
+            >
+              Conoce más sobre ClaudIA
+            </Link>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -41,4 +53,5 @@ const FeaturesSection: React.FC = () => {
       </div>
     </section>;
 };
+
 export default FeaturesSection;
