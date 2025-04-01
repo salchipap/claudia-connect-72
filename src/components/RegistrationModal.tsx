@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog } from '@/components/ui/dialog';
 import { useToast } from "@/hooks/use-toast";
@@ -31,17 +30,25 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
     setIsLoading(true);
     
     try {
-      // Combine country code and phone number
-      const fullPhoneNumber = `${formData.countryCode}${formData.phoneNumber}`;
-      // Format phone number with WhatsApp format for remotejid
-      const formattedPhone = fullPhoneNumber.startsWith('+') ? fullPhoneNumber.substring(1) : fullPhoneNumber;
+      // Limpiamos el número de teléfono para usar solo números
+      const cleanPhone = formData.phoneNumber.replace(/\D/g, '');
       
-      console.log('Registering user with Supabase:', {
-        email: formData.email,
-        name: formData.name,
-        lastname: formData.lastname,
-        remotejid: formattedPhone
-      });
+      // Verificamos si el usuario ya incluyó el código de país en el input
+      let formattedPhone;
+      const countryCodeWithoutPlus = formData.countryCode.substring(1);
+      
+      if (cleanPhone.startsWith('0')) {
+        // Si comienza con 0, quitamos el 0 y agregamos el código de país sin el +
+        formattedPhone = countryCodeWithoutPlus + cleanPhone.substring(1);
+      } else if (cleanPhone.startsWith(countryCodeWithoutPlus)) {
+        // Si ya incluye el código de país, lo dejamos como está
+        formattedPhone = cleanPhone;
+      } else {
+        // Si no incluye el código, lo agregamos
+        formattedPhone = countryCodeWithoutPlus + cleanPhone;
+      }
+      
+      console.log('Registrando con número:', formattedPhone);
       
       // Register with Supabase Auth
       const { data, error } = await signUp(formData.email, formData.password, {
@@ -92,7 +99,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div className="bg-[#142126] rounded-lg w-full max-w-md shadow-xl animate-fade-in-up relative overflow-hidden text-claudia-white">
-            {/* Decorative element */}
+            {/* Decorative elements */}
             <div className="absolute top-0 right-0 w-40 h-40 bg-claudia-primary opacity-10 rounded-bl-full -z-10"></div>
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-claudia-primary opacity-10 rounded-tr-full -z-10"></div>
             

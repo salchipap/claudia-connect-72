@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import { useToast } from "@/hooks/use-toast";
@@ -33,11 +32,22 @@ const Registration = () => {
       // Limpiamos el número de teléfono para usar solo números
       const cleanPhone = formData.phoneNumber.replace(/\D/g, '');
       
-      // Combine country code and phone number
-      const fullPhoneNumber = `${formData.countryCode}${cleanPhone}`;
+      // Verificamos si el usuario ya incluyó el código de país en el input
+      let formattedPhone;
+      const countryCodeWithoutPlus = formData.countryCode.substring(1);
       
-      // Format phone number with WhatsApp format (sin el + del código de país)
-      const formattedPhone = fullPhoneNumber.startsWith('+') ? fullPhoneNumber.substring(1) : fullPhoneNumber;
+      if (cleanPhone.startsWith('0')) {
+        // Si comienza con 0, quitamos el 0 y agregamos el código de país sin el +
+        formattedPhone = countryCodeWithoutPlus + cleanPhone.substring(1);
+      } else if (cleanPhone.startsWith(countryCodeWithoutPlus)) {
+        // Si ya incluye el código de país, lo dejamos como está
+        formattedPhone = cleanPhone;
+      } else {
+        // Si no incluye el código, lo agregamos
+        formattedPhone = countryCodeWithoutPlus + cleanPhone;
+      }
+      
+      console.log('Registrando con número:', formattedPhone);
       
       // Register with Supabase Auth
       const { data, error } = await signUp(formData.email, formData.password, {
