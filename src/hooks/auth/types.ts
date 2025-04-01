@@ -1,9 +1,9 @@
 
 import { User as SupabaseUser } from '@supabase/supabase-js';
 
-export interface User extends SupabaseUser {
-  // Add any additional user properties here
-  user_metadata?: { [key: string]: any };
+export interface User extends Omit<SupabaseUser, 'user_metadata'> {
+  // We extend Supabase User but omit user_metadata to redefine it properly
+  user_metadata: { [key: string]: any };
   id: string;
   email?: string;
 }
