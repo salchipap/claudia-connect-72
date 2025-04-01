@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import NavBar from '@/components/NavBar';
 import ReminderCalendar from '@/components/ReminderCalendar';
 import { useAuth } from '@/hooks/useAuth';
 import { LogOut, UserCircle, Mail, Calendar, Pizza } from 'lucide-react';
@@ -63,9 +62,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#142126] text-claudia-foreground relative">
-      <NavBar />
-      
-      <main className="pt-20 pb-12 px-6">
+      <main className="pt-8 pb-12 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8 flex justify-between items-center">
             <h1 className="text-3xl md:text-4xl font-bold text-claudia-white">Dashboard</h1>
