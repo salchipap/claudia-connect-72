@@ -79,8 +79,6 @@ const Login = () => {
       if (error.message) {
         if (error.message.includes("Invalid login credentials")) {
           errorMsg = "Credenciales inválidas. Verifica tu email y contraseña.";
-        } else if (error.message.includes("Email not confirmed")) {
-          errorMsg = "Tu email aún no ha sido confirmado. Por favor revisa tu bandeja de entrada.";
         } else {
           errorMsg = error.message;
         }

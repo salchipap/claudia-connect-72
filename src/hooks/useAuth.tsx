@@ -89,11 +89,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signUp = async (email: string, password: string, metadata?: { [key: string]: any }) => {
     try {
       console.log('Signing up with email:', email, 'and metadata:', metadata);
+      
+      // First, check if the user email already exists in the users table
+      const { data: existingUsers, error: checkError } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', email)
+        .maybeSingle();
+        
+      if (checkError) {
+        console.error('Error checking for existing user:', checkError);
+      } else if (existingUsers) {
+        console.log('User already exists in users table:', existingUsers);
+        return { 
+          data: null, 
+          error: { message: 'Este correo electrónico ya está registrado.' } 
+        };
+      }
+        
+      // If not, proceed with signup
       const result = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: metadata,
+          // Set emailRedirectTo to the current URL for better UX if email confirmation is enabled
+          emailRedirectTo: window.location.origin + '/login',
         }
       });
 
@@ -116,7 +137,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   name: metadata.name,
                   lastname: metadata.lastname,
                   remotejid: metadata.remotejid,
-                  status: 'pending',
+                  status: 'active', // Changed from 'pending' to 'active' since we don't require email confirmation
                   type_user: 'regular',
                   credits: '0'
                 }

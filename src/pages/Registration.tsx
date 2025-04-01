@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import { useToast } from "@/hooks/use-toast";
@@ -119,17 +118,17 @@ const Registration = () => {
       
       // Success message
       toast({
-        title: "Registration successful",
-        description: "Please check your email to confirm your account.",
+        title: "Registro exitoso",
+        description: "¡Tu cuenta ha sido creada con éxito! Ya puedes iniciar sesión.",
       });
       
-      // Navigate to dashboard (auth state will handle redirects if email confirmation is required)
-      navigate('/dashboard');
+      // Navigate to login page instead of dashboard
+      navigate('/login');
     } catch (error: any) {
       console.error('Registration error:', error);
       toast({
-        title: "Registration error",
-        description: error.message || "An error occurred during registration. Please try again.",
+        title: "Error en el registro",
+        description: error.message || "Ocurrió un error durante el registro. Por favor, intenta de nuevo.",
         variant: "destructive",
       });
     } finally {

@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Dialog } from '@/components/ui/dialog';
 import { useToast } from "@/hooks/use-toast";
-import VerificationModal from './VerificationModal';
 import RegistrationForm, { RegistrationFormData } from './forms/RegistrationForm';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -20,8 +19,6 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
   const { toast } = useToast();
   const { signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
   
   const handleClose = () => {
     if (!isLoading) {
@@ -66,19 +63,14 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
       
       console.log('Supabase registration success:', data);
       
-      // Store email for verification modal
-      setUserEmail(formData.email);
       // Close the registration modal
       handleClose();
       
       // Show success toast
       toast({
         title: "Registro exitoso",
-        description: "Por favor revisa tu correo para confirmar tu cuenta.",
+        description: "¡Tu cuenta ha sido creada con éxito! Ya puedes iniciar sesión.",
       });
-      
-      // Optionally, open verification modal if needed
-      // setIsVerificationModalOpen(true);
       
     } catch (error: any) {
       console.error('Registration error:', error);
@@ -119,15 +111,6 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
           </div>
         </div>
       </Dialog>
-      
-      {/* Verification Modal - Only shown after successful registration */}
-      {isVerificationModalOpen && (
-        <VerificationModal
-          isOpen={isVerificationModalOpen}
-          onClose={() => setIsVerificationModalOpen(false)}
-          email={userEmail}
-        />
-      )}
     </>
   );
 };
