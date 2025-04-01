@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { format, isSameDay, isBefore, startOfDay, set } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth";
 import { Reminder } from "@/types/Reminder";
 import {
   Popover,
@@ -48,7 +47,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-// Schema de validación para el formulario
 const reminderFormSchema = z.object({
   title: z.string().min(1, { message: "El título es obligatorio" }),
   message: z.string().min(1, { message: "El mensaje es obligatorio" }),
@@ -59,7 +57,6 @@ const reminderFormSchema = z.object({
 type ReminderFormValues = z.infer<typeof reminderFormSchema>;
 
 const ReminderCalendar = () => {
-  // Initialize with current date
   const today = startOfDay(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -71,7 +68,6 @@ const ReminderCalendar = () => {
   const { user, userProfile } = useAuth();
   const { toast } = useToast();
 
-  // Inicializar react-hook-form
   const form = useForm<ReminderFormValues>({
     resolver: zodResolver(reminderFormSchema),
     defaultValues: {
@@ -128,12 +124,10 @@ const ReminderCalendar = () => {
     setCreatingReminder(true);
     
     try {
-      // Crear fecha de envío combinando la fecha seleccionada con la hora elegida
       const [hours, minutes] = data.time.split(':').map(Number);
       const sendDate = new Date(selectedDate);
       sendDate.setHours(hours, minutes, 0, 0);
       
-      // Validar que la fecha de envío no sea en el pasado
       if (isBefore(sendDate, new Date())) {
         toast({
           title: "Fecha inválida",
@@ -144,7 +138,6 @@ const ReminderCalendar = () => {
         return;
       }
       
-      // Verificar si el usuario tiene recordatorios disponibles
       if (!userProfile?.reminders || parseInt(userProfile.reminders) <= 0) {
         toast({
           title: "Sin recordatorios disponibles",
@@ -186,7 +179,6 @@ const ReminderCalendar = () => {
       
       console.log('Datos del recordatorio a guardar:', reminderData);
       
-      // Crear el recordatorio
       const { data: reminderResponse, error } = await supabase
         .from('reminders')
         .insert(reminderData)
@@ -200,7 +192,6 @@ const ReminderCalendar = () => {
         
         setReminderDates([...reminderDates, selectedDate]);
         
-        // Decrementar el contador de recordatorios disponibles
         if (userProfile && userProfile.reminders) {
           const currentReminders = parseInt(userProfile.reminders);
           const newCount = Math.max(0, currentReminders - 1).toString();
@@ -238,7 +229,6 @@ const ReminderCalendar = () => {
   };
 
   const handleDateSelect = (date: Date | undefined) => {
-    // Prevent selecting dates before today
     if (date && !isBefore(date, today)) {
       setSelectedDate(date);
       setPopoverOpen(false);

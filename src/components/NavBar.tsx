@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Button from './Button';
 import LoginModal from './LoginModal';
 import RegistrationModal from './RegistrationModal';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 import { UserCircle, MessageCircle, Phone, ExternalLink, CalendarDays, CreditCard } from 'lucide-react';
 
 const NavBar: React.FC = () => {

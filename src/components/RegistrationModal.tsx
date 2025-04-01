@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Dialog } from '@/components/ui/dialog';
 import { useToast } from "@/hooks/use-toast";
 import RegistrationForm, { RegistrationFormData } from './forms/RegistrationForm';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 
 type RegistrationModalProps = {
   isOpen: boolean;
