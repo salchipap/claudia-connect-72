@@ -4,13 +4,13 @@ import NavBar from '@/components/NavBar';
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import RegistrationForm, { RegistrationFormData } from '@/components/forms/RegistrationForm';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 
 const Registration = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signUp, loading: authLoading } = useAuth();
+  const { user, signUp, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('');
 
@@ -82,7 +82,7 @@ const Registration = () => {
     }
   };
   
-  if (authLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#142126] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-claudia-primary"></div>

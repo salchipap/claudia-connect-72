@@ -19,7 +19,7 @@ export interface UserProfile {
   status?: string;
   last_message?: string;
   credits?: string;
-  reminders?: string;  // Agregamos esta propiedad que corresponde a la columna en la base de datos
+  reminders?: string;
   type_user?: string;
 }
 
@@ -34,6 +34,9 @@ export interface AuthContextType extends AuthState {
   signIn: (email: string, password: string) => Promise<{
     success: boolean;
     error?: string;
+    needsVerification?: boolean;
+    email?: string;
+    userId?: string;
   }>;
   signUp: (email: string, password: string, metadata?: { [key: string]: any }) => Promise<{
     success: boolean;

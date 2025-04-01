@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReminderCalendar from '@/components/ReminderCalendar';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 import { LogOut, UserCircle, Mail, Calendar, MessageCircle, Phone, ExternalLink, CreditCard, CalendarDays } from 'lucide-react';
 import Button from '@/components/Button';
 import { useToast } from '@/hooks/use-toast';
@@ -99,7 +100,6 @@ const Dashboard = () => {
                 <PopoverTrigger asChild>
                   <button className="flex items-center gap-2 p-2 rounded-full bg-[#1a2a30] hover:bg-claudia-primary/20 transition-colors">
                     <Avatar className="h-10 w-10 border-2 border-claudia-primary/30">
-                      <AvatarImage src={userProfile.pic || undefined} alt={userProfile.name || 'Usuario'} />
                       <AvatarFallback className="bg-claudia-primary/20 text-claudia-primary">
                         {userProfile.name ? userProfile.name[0].toUpperCase() : 'U'}
                       </AvatarFallback>
@@ -110,7 +110,6 @@ const Dashboard = () => {
                   <div className="p-4 bg-[#142126] rounded-t-md border-b border-claudia-primary/20">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-14 w-14 border-2 border-claudia-primary/30">
-                        <AvatarImage src={userProfile.pic || undefined} alt={userProfile.name || 'Usuario'} />
                         <AvatarFallback className="bg-claudia-primary/20 text-claudia-primary">
                           {userProfile.name ? userProfile.name[0].toUpperCase() : 'U'}
                         </AvatarFallback>
@@ -120,7 +119,7 @@ const Dashboard = () => {
                           {userProfile.name || 'Usuario'} {userProfile.lastname || ''}
                         </h2>
                         <p className="text-sm text-claudia-white/70">
-                          {user.email || userProfile.email || 'No email'}
+                          {user.email || 'No email'}
                         </p>
                       </div>
                     </div>
@@ -144,7 +143,7 @@ const Dashboard = () => {
                     
                     <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
                       <Mail size={18} className="text-claudia-primary" />
-                      <span>{user.email || userProfile.email || 'No disponible'}</span>
+                      <span>{user.email || 'No disponible'}</span>
                     </div>
                     
                     <div className="flex items-center gap-2 p-2 text-claudia-white">

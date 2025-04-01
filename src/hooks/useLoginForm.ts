@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from './useAuth';
+import { useAuth } from './auth';
 import { useToast } from './use-toast';
 
 export const useLoginForm = () => {
@@ -39,7 +39,6 @@ export const useLoginForm = () => {
       }
       
       // Verificar si el usuario necesita verificación
-      // Suponemos que signIn ahora devuelve userData cuando es necesaria la verificación
       if (result.needsVerification && result.email) {
         console.log('User needs verification');
         setEmailForVerification(result.email);

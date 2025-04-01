@@ -1,9 +1,9 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from '@/hooks/useAuth';
-import { loginUser } from '@/utils/api';
+import { useAuth } from '@/hooks/auth';
+import { useToast } from './use-toast';
+import { verifyCodeWithWebhook } from '@/utils/api';
 
 type LoginMethod = 'phone' | 'email';
 
@@ -15,7 +15,10 @@ export function useLoginForm() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [loginMethod, setLoginMethod] = useState<LoginMethod>('email'); // Cambiamos a email por defecto
+  const [showVerification, setShowVerification] = useState(false);
+  const [emailForVerification, setEmailForVerification] = useState('');
+  const [userIdForVerification, setUserIdForVerification] = useState('');
+  const [loginMethod, setLoginMethod] = useState<LoginMethod>('email');
   const [countryCode, setCountryCode] = useState('+57');
   
   const validateForm = () => {
@@ -42,8 +45,8 @@ export function useLoginForm() {
     return true;
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     
     if (!validateForm()) return;
     
@@ -53,87 +56,40 @@ export function useLoginForm() {
     try {
       console.log(`Login attempt - Method: ${loginMethod}, Identifier: ${identifier}`);
       
-      // Si es un número de teléfono, intentamos utilizando la API personalizada
-      if (loginMethod === 'phone') {
-        try {
-          // Formatear el número de teléfono quitando espacios y caracteres no numéricos
-          const formattedPhone = `${countryCode}${identifier.replace(/\D/g, '')}`;
-          
-          // Intenta el inicio de sesión con número de teléfono
-          const result = await loginUser({
-            phone: formattedPhone,
-            password
-          });
-          
-          if (result.success) {
-            toast({
-              title: "Inicio de sesión exitoso",
-              description: "¡Bienvenido de nuevo!",
-            });
-            
-            navigate('/dashboard');
-            return;
-          }
-        } catch (phoneError: any) {
-          console.error('Error en login con teléfono:', phoneError);
-          // Si falla, continuamos con el método de correo electrónico como respaldo
-        }
-      }
-      
-      // Para email o como respaldo si falla el teléfono
-      // Intentamos convertir el número de teléfono a un formato de email si es necesario
-      let emailToUse = identifier;
-      
-      // Si parece un número de teléfono y no tiene @ (no es un email),
-      // lo convertimos a un formato de email
-      if (loginMethod === 'phone' && !identifier.includes('@')) {
-        emailToUse = `${identifier}@example.com`;
-      }
-      
-      const result = await signIn(emailToUse, password);
+      // Intentar iniciar sesión
+      const result = await signIn(identifier, password);
       
       if (!result.success) {
-        console.error('Login error details:', result.error);
-        
-        let errorMsg = "Credenciales inválidas. Por favor intenta de nuevo.";
-        
-        if (result.error) {
-          errorMsg = result.error;
-        }
-        
-        setErrorMessage(errorMsg);
-        
-        toast({
-          title: "Error de inicio de sesión",
-          description: errorMsg,
-          variant: "destructive",
-        });
-        
+        console.error('Login error:', result.error);
+        setErrorMessage(result.error || 'Error al iniciar sesión');
+        setIsLoading(false);
         return;
       }
       
+      // Verificar si el usuario necesita verificación
+      if (result.needsVerification && result.email) {
+        console.log('User needs verification');
+        setEmailForVerification(result.email);
+        if (result.userId) {
+          setUserIdForVerification(result.userId);
+        }
+        setShowVerification(true);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Si todo salió bien, mostrar toast y redirigir
       toast({
         title: "Inicio de sesión exitoso",
         description: "¡Bienvenido de nuevo!",
       });
       
+      // Redirigir al dashboard
       navigate('/dashboard');
+      
     } catch (error: any) {
-      console.error('Login error details:', error);
-      
-      let errorMsg = "Email o contraseña inválidos. Por favor intenta de nuevo.";
-      
-      if (error?.message) {
-        errorMsg = error.message;
-      }
-      
-      setErrorMessage(errorMsg);
-      
-      toast({
-        title: "Error de inicio de sesión",
-        description: errorMsg,
-        variant: "destructive",
-      });
+      console.error('Login error:', error);
+      setErrorMessage(error.message || 'Ocurrió un error durante el inicio de sesión');
     } finally {
       setIsLoading(false);
     }
@@ -151,6 +107,10 @@ export function useLoginForm() {
     setPassword,
     isLoading,
     errorMessage,
+    showVerification,
+    setShowVerification,
+    emailForVerification,
+    userIdForVerification,
     loginMethod,
     countryCode,
     setCountryCode,

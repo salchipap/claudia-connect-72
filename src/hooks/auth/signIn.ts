@@ -25,9 +25,21 @@ export const signIn = async (email: string, password: string) => {
     }
     
     console.log('Successfully signed in:', data);
+    
+    // Check if user needs verification (for example, no remotejid set)
+    const needsVerification = !data.user?.user_metadata?.remotejid;
+    
+    if (needsVerification) {
+      return { 
+        success: true,
+        needsVerification: true,
+        email: data.user?.email,
+        userId: data.user?.id
+      };
+    }
+    
     return { 
-      success: true,
-      userData: data.user 
+      success: true
     };
   } catch (error: any) {
     console.error('Exception during sign in:', error);

@@ -6,7 +6,7 @@ import FeaturesSection from '@/components/FeaturesSection';
 import PricingSection from '@/components/PricingSection';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 
 const Index = () => {
   const { user, loading } = useAuth();
