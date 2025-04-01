@@ -21,10 +21,12 @@ const NavBar: React.FC = () => {
   };
 
   const openRegistrationModal = () => {
+    console.log('Opening registration modal');
     setIsRegistrationModalOpen(true);
   };
 
   const closeRegistrationModal = () => {
+    console.log('Closing registration modal');
     setIsRegistrationModalOpen(false);
   };
 
@@ -58,7 +60,12 @@ const NavBar: React.FC = () => {
             >
               Log In
             </Button>
-            <Button onClick={openRegistrationModal}>Registrarme</Button>
+            <Button 
+              onClick={openRegistrationModal}
+              variant="primary"
+            >
+              Registrarme
+            </Button>
           </>
         )}
       </div>

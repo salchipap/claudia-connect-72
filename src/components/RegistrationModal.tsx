@@ -24,6 +24,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
   
   const handleClose = () => {
     if (!isLoading) {
+      console.log('Handling close of registration modal');
       onClose();
     }
   };
@@ -75,6 +76,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
     }
   };
 
+  // Early return if modal is not open
   if (!isOpen) return null;
 
   return (
