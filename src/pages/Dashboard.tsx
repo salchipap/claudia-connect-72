@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReminderCalendar from '@/components/ReminderCalendar';
@@ -185,16 +184,6 @@ const Dashboard = () => {
       <main className="py-4 md:py-8 px-4 md:px-6">
         <div className="max-w-5xl mx-auto">
           <Card className="border-claudia-primary/10 shadow-lg overflow-hidden relative">
-            {isMobile ? (
-              <Button
-                variant="primary"
-                size="sm"
-                className="absolute top-3 right-3 z-10"
-                icon={<Plus size={16} />}
-              >
-                Crear
-              </Button>
-            ) : null}
             <ReminderCalendar />
           </Card>
         </div>
