@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { format, isSameDay } from "date-fns";
@@ -30,7 +29,8 @@ import {
   Clock, 
   AlertCircle,
   Calendar as CalendarIcon,
-  ChevronDown
+  ChevronDown,
+  Phone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -50,7 +50,7 @@ const ReminderCalendar = () => {
     send_date: '',
   });
   const [creatingReminder, setCreatingReminder] = useState(false);
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const { toast } = useToast();
 
   // Fetch reminders from Supabase
@@ -96,6 +96,7 @@ const ReminderCalendar = () => {
     );
   };
 
+  // Handle reminder creation
   const handleCreateReminder = async () => {
     if (!user || !selectedDate) return;
     
@@ -113,6 +114,19 @@ const ReminderCalendar = () => {
     try {
       const sendDate = new Date(newReminder.send_date);
       
+      // Ensure we get the remotejid from the user profile
+      const userRemotejid = userProfile?.remotejid || '';
+      
+      if (!userRemotejid) {
+        toast({
+          title: "Error",
+          description: "No se encontró un número de teléfono asociado a tu perfil. Por favor actualiza tu perfil.",
+          variant: "destructive",
+        });
+        setCreatingReminder(false);
+        return;
+      }
+      
       const reminderData = {
         user_id: user.id,
         title: newReminder.title,
@@ -120,7 +134,7 @@ const ReminderCalendar = () => {
         description: newReminder.description || null,
         date: selectedDate.toISOString(),
         send_date: sendDate.toISOString(),
-        remotejid: user.email || '', // Use email as fallback
+        remotejid: userRemotejid, // Explicitly use the user's remotejid
         status: 'pending',
         origin: 'manual',
       };
@@ -367,6 +381,14 @@ const ReminderCalendar = () => {
           </DialogHeader>
           
           <div className="space-y-4 py-2">
+            {/* Display the user's phone number that will be used */}
+            <div className="p-3 bg-[#142126]/70 rounded-md flex items-center gap-2 text-sm">
+              <Phone className="h-4 w-4 text-claudia-primary" />
+              <span className="text-claudia-white/80">
+                Número de teléfono: {userProfile?.remotejid || 'No disponible'}
+              </span>
+            </div>
+            
             <div className="space-y-2">
               <Label htmlFor="title" className="text-claudia-white">Título</Label>
               <Input 
@@ -428,7 +450,7 @@ const ReminderCalendar = () => {
               type="button" 
               onClick={handleCreateReminder}
               className="bg-claudia-primary text-claudia-white hover:bg-claudia-primary/80"
-              disabled={creatingReminder}
+              disabled={creatingReminder || !userProfile?.remotejid}
             >
               {creatingReminder ? (
                 <>
