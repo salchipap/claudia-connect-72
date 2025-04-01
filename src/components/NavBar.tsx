@@ -5,7 +5,7 @@ import Button from './Button';
 import LoginModal from './LoginModal';
 import RegistrationModal from './RegistrationModal';
 import { useAuth } from '@/hooks/useAuth';
-import { UserCircle, MessageCircle, Phone } from 'lucide-react';
+import { UserCircle, MessageCircle, Phone, ExternalLink } from 'lucide-react';
 
 const NavBar: React.FC = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -48,6 +48,19 @@ const NavBar: React.FC = () => {
   const userPhoneNumber = userProfile?.remotejid || 
                           (user?.user_metadata?.remotejid) || 
                           null;
+                          
+  // Función para abrir WhatsApp
+  const openWhatsAppChat = () => {
+    // Número de WhatsApp de ClaudIA
+    const whatsappNumber = "573128310805";
+    const message = "Hola ClaudIA, quiero chatear contigo";
+    
+    // Crear la URL de WhatsApp
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    
+    // Abrir en una nueva pestaña
+    window.open(whatsappUrl, '_blank');
+  };
 
   return (
     <nav className="bg-[#142126] p-4 flex items-center justify-between text-claudia-foreground">
@@ -72,6 +85,25 @@ const NavBar: React.FC = () => {
                 <span>{userPhoneNumber}</span>
               </div>
             )}
+            
+            <Button 
+              onClick={openWhatsAppChat}
+              variant="primary"
+              className="flex items-center gap-2"
+            >
+              <div className="flex items-center gap-2">
+                <div className="h-5 w-5 rounded-full overflow-hidden">
+                  <img 
+                    src="https://img.recraft.ai/TPT2gnDTOAplVWXdKprcxYJZGSC82p_p5DJzbNYpSyU/rs:fit:1024:1024:0/q:95/g:no/plain/abs://prod/images/8fbdfedc-79e6-4ae5-9912-89c9048c67d8@jpg" 
+                    alt="ClaudIA" 
+                    className="h-full w-full object-cover" 
+                  />
+                </div>
+                <span className="hidden md:inline">Chatear con ClaudIA</span>
+                <span className="md:hidden">ClaudIA</span>
+              </div>
+              <ExternalLink size={14} />
+            </Button>
             
             <Button 
               onClick={goToProfile} 

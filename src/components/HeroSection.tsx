@@ -1,8 +1,18 @@
 
 import React from 'react';
 import Button from './Button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, MessageCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
 const HeroSection: React.FC = () => {
+  const navigate = useNavigate();
+  
+  // Función para abrir el modal de inicio de sesión
+  const handleLoginClick = () => {
+    // Navegar a la ruta de login donde se muestra el formulario
+    navigate('/login');
+  };
+
   return <section className="min-h-[85vh] flex flex-col items-center justify-center pt-8 px-6 relative overflow-hidden">
       {/* Abstract Background */}
       <div className="absolute inset-0 -z-10 bg-gradient-radial from-claudia-muted to-background opacity-70"></div>
@@ -37,9 +47,15 @@ const HeroSection: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in" style={{
         animationDelay: '400ms'
       }}>
-          <Button href="https://wa.me/573128310805" variant="primary" size="lg" className="w-full sm:w-auto flex items-center justify-center">
-            <div className="flex items-center">
-              <div className="mr-2 h-7 w-7 rounded-full overflow-hidden">
+          {/* Botón de Chatear con ClaudIA - Estilo similar al Dashboard */}
+          <Button 
+            href="https://wa.me/573128310805" 
+            variant="primary" 
+            size="lg" 
+            className="w-full sm:w-auto flex items-center justify-center gap-2"
+          >
+            <div className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded-full overflow-hidden">
                 <img 
                   src="https://img.recraft.ai/TPT2gnDTOAplVWXdKprcxYJZGSC82p_p5DJzbNYpSyU/rs:fit:1024:1024:0/q:95/g:no/plain/abs://prod/images/8fbdfedc-79e6-4ae5-9912-89c9048c67d8@jpg" 
                   alt="ClaudIA" 
@@ -48,13 +64,20 @@ const HeroSection: React.FC = () => {
               </div>
               <span>Chatear con ClaudIA</span>
             </div>
-            <ArrowRight className="ml-2 h-5 w-5" />
+            <ArrowRight className="h-5 w-5" />
           </Button>
           
-          <Button href="https://wa.me/573128310805" variant="ghost" size="lg" className="w-full sm:w-auto text-claudia-white">
+          {/* Botón de Iniciar Sesión - Ahora abre el modal en lugar de redireccionar */}
+          <Button 
+            onClick={handleLoginClick} 
+            variant="ghost" 
+            size="lg" 
+            className="w-full sm:w-auto text-claudia-white"
+          >
             Iniciar Sesión
           </Button>
           
+          {/* Mantener el botón de Registrarse */}
           <Button to="/register" variant="outlined" size="lg" className="w-full sm:w-auto text-claudia-white">
             Registrarse
           </Button>
