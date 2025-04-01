@@ -5,6 +5,7 @@ import { Lock, Mail, Phone } from 'lucide-react';
 import Button from '@/components/Button';
 import CountrySelect from '@/components/CountrySelect';
 import { useLoginForm } from '@/hooks/useLoginForm';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const LoginForm = () => {
   const {
@@ -45,9 +46,10 @@ const LoginForm = () => {
       </div>
       
       {errorMessage && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-md text-red-200 text-sm">
-          <p>{errorMessage}</p>
-        </div>
+        <Alert variant="destructive" className="mb-4 bg-red-500/10 border border-red-500/30 text-red-200">
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
       )}
       
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -82,7 +84,7 @@ const LoginForm = () => {
             <div className="relative">
               <input
                 id="identifier"
-                type="text"
+                type="email"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"

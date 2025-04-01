@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/hooks/useAuth';
+import { loginUser } from '@/utils/api';
 
 type LoginMethod = 'phone' | 'email';
 
@@ -14,7 +15,7 @@ export function useLoginForm() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [loginMethod, setLoginMethod] = useState<LoginMethod>('phone');
+  const [loginMethod, setLoginMethod] = useState<LoginMethod>('email'); // Cambiamos a email por defecto
   const [countryCode, setCountryCode] = useState('+57');
   
   const validateForm = () => {
@@ -52,8 +53,44 @@ export function useLoginForm() {
     try {
       console.log(`Login attempt - Method: ${loginMethod}, Identifier: ${identifier}`);
       
-      // Currently we only support email login through Supabase
-      const result = await signIn(identifier, password);
+      // Si es un número de teléfono, intentamos utilizando la API personalizada
+      if (loginMethod === 'phone') {
+        try {
+          // Formatear el número de teléfono quitando espacios y caracteres no numéricos
+          const formattedPhone = `${countryCode}${identifier.replace(/\D/g, '')}`;
+          
+          // Intenta el inicio de sesión con número de teléfono
+          const result = await loginUser({
+            phone: formattedPhone,
+            password
+          });
+          
+          if (result.success) {
+            toast({
+              title: "Inicio de sesión exitoso",
+              description: "¡Bienvenido de nuevo!",
+            });
+            
+            navigate('/dashboard');
+            return;
+          }
+        } catch (phoneError: any) {
+          console.error('Error en login con teléfono:', phoneError);
+          // Si falla, continuamos con el método de correo electrónico como respaldo
+        }
+      }
+      
+      // Para email o como respaldo si falla el teléfono
+      // Intentamos convertir el número de teléfono a un formato de email si es necesario
+      let emailToUse = identifier;
+      
+      // Si parece un número de teléfono y no tiene @ (no es un email),
+      // lo convertimos a un formato de email
+      if (loginMethod === 'phone' && !identifier.includes('@')) {
+        emailToUse = `${identifier}@example.com`;
+      }
+      
+      const result = await signIn(emailToUse, password);
       
       if (!result.success) {
         console.error('Login error details:', result.error);
