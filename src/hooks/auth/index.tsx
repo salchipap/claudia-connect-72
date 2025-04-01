@@ -29,7 +29,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Use setTimeout to avoid Supabase auth deadlock
           setTimeout(() => {
             fetchUserProfile(session.user.id).then(profile => {
+              console.log('User profile fetched:', profile);
               setUserProfile(profile);
+            }).catch(error => {
+              console.error('Error fetching user profile:', error);
             });
           }, 0);
         } else {
@@ -46,10 +49,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (session?.user) {
         fetchUserProfile(session.user.id).then(profile => {
+          console.log('Initial user profile:', profile);
           setUserProfile(profile);
+        }).catch(error => {
+          console.error('Error fetching initial user profile:', error);
         });
       }
       
+      setLoading(false);
+    }).catch(error => {
+      console.error('Error getting session:', error);
       setLoading(false);
     });
 

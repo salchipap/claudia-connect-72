@@ -50,43 +50,20 @@ export function useLoginForm() {
     setErrorMessage(null);
     
     try {
-      let email = identifier;
+      console.log(`Login attempt - Method: ${loginMethod}, Identifier: ${identifier}`);
       
-      // Si es teléfono, formateamos para convertirlo en email
-      if (loginMethod === 'phone') {
-        // Quitamos cualquier espacio o caracter especial que no sea número
-        const cleanPhone = identifier.replace(/\D/g, '');
-        
-        // Formateamos el número de teléfono según Supabase
-        // Importante: NO debemos combinar el código de país si ya está incluido en el número
-        let formattedPhone;
-        
-        // Verificamos si el usuario ya incluyó el código de país en el input
-        if (cleanPhone.startsWith('0')) {
-          // Si comienza con 0, quitamos el 0 y agregamos el código de país sin el +
-          formattedPhone = countryCode.substring(1) + cleanPhone.substring(1);
-        } else if (cleanPhone.startsWith(countryCode.substring(1))) {
-          // Si ya incluye el código de país, lo dejamos como está
-          formattedPhone = cleanPhone;
-        } else {
-          // Si no incluye el código, lo agregamos
-          formattedPhone = countryCode.substring(1) + cleanPhone;
-        }
-        
-        console.log('Número formateado para login:', formattedPhone);
-        
-        // Convertir a email para Supabase (usando el formato del teléfono como usuario)
-        email = `${formattedPhone}@claudia.ai`;
-        
-        console.log('Intentando login con teléfono formateado como email:', email);
-      } else {
-        console.log('Intentando login con email:', email);
-      }
+      const isPhoneLogin = loginMethod === 'phone';
       
-      const { data, error } = await signIn(email, password);
+      // Pass information to signIn about the login method
+      const { data, error } = await signIn(
+        identifier,
+        password,
+        isPhoneLogin,
+        countryCode
+      );
       
       if (error) {
-        console.error('Supabase login error:', error);
+        console.error('Login error details:', error);
         throw error;
       }
       
