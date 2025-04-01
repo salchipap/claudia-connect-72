@@ -64,7 +64,28 @@ export function useLoginForm() {
       
       if (error) {
         console.error('Login error details:', error);
-        throw error;
+        
+        let errorMsg = "Credenciales inválidas. Por favor intenta de nuevo.";
+        
+        if (error.message) {
+          if (error.message.includes("Invalid login credentials")) {
+            errorMsg = isPhoneLogin 
+              ? "Número de teléfono o contraseña incorrectos. Verifica tus datos e intenta de nuevo."
+              : "Email o contraseña incorrectos. Verifica tus datos e intenta de nuevo.";
+          } else {
+            errorMsg = error.message;
+          }
+        }
+        
+        setErrorMessage(errorMsg);
+        
+        toast({
+          title: "Error de inicio de sesión",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        
+        return;
       }
       
       toast({
@@ -81,7 +102,9 @@ export function useLoginForm() {
       // Manejar errores específicos de Supabase
       if (error.message) {
         if (error.message.includes("Invalid login credentials")) {
-          errorMsg = "Credenciales inválidas. Verifica tu número/email y contraseña.";
+          errorMsg = loginMethod === 'phone'
+            ? "Número de teléfono o contraseña incorrectos. Verifica tus datos e intenta de nuevo."
+            : "Email o contraseña incorrectos. Verifica tus datos e intenta de nuevo.";
         } else {
           errorMsg = error.message;
         }

@@ -41,7 +41,46 @@ export const signIn = async (email: string, password: string, isPhoneLogin = fal
       console.log('Raw phone input:', email);
       console.log('Country code:', countryCode);
       console.log('Formatted phone:', formattedPhone);
-      formattedIdentifier = `${formattedPhone}@claudia.ai`;
+      
+      // Directamente usar el número de teléfono como identificador sin @claudia.ai
+      // Prueba primero con el formato completo del teléfono
+      try {
+        const result = await supabase.auth.signInWithPassword({
+          email: `${formattedPhone}@claudia.ai`,
+          password,
+        });
+        
+        if (!result.error) {
+          console.log('Successfully signed in with phone@claudia.ai format');
+          return result;
+        }
+        
+        // Si falló, intentamos buscar el usuario por su remotejid en la tabla users
+        console.log('Trying to find user by remotejid...');
+        const { data: users } = await supabase
+          .from('users')
+          .select('email')
+          .eq('remotejid', formattedPhone)
+          .maybeSingle();
+        
+        if (users && users.email) {
+          console.log('Found user with matching remotejid, trying to sign in with email:', users.email);
+          return await supabase.auth.signInWithPassword({
+            email: users.email,
+            password,
+          });
+        }
+        
+        // Si todavía no hay éxito, intenta con correo original por si acaso
+        console.log('No matching remotejid found, trying original email as fallback');
+        return result;
+      } catch (error) {
+        console.error('Error during phone login attempts:', error);
+        throw error;
+      }
+    } else {
+      // Email login remains the same
+      formattedIdentifier = email;
     }
     
     console.log('Final identifier for Supabase:', formattedIdentifier);
