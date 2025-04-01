@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReminderCalendar from '@/components/ReminderCalendar';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, UserCircle, Mail, Calendar, Pizza, Phone, MessageCircle, ExternalLink } from 'lucide-react';
+import { LogOut, UserCircle, Mail, Calendar, MessageCircle, Phone, ExternalLink } from 'lucide-react';
 import Button from '@/components/Button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -90,8 +90,16 @@ const Dashboard = () => {
                 variant="primary"
                 className="flex items-center gap-2"
               >
-                <MessageCircle size={18} />
-                <span>Chatear con ClaudIA</span>
+                <div className="flex items-center gap-2">
+                  <div className="h-5 w-5 rounded-full overflow-hidden">
+                    <img 
+                      src="https://img.recraft.ai/TPT2gnDTOAplVWXdKprcxYJZGSC82p_p5DJzbNYpSyU/rs:fit:1024:1024:0/q:95/g:no/plain/abs://prod/images/8fbdfedc-79e6-4ae5-9912-89c9048c67d8@jpg" 
+                      alt="ClaudIA" 
+                      className="h-full w-full object-cover" 
+                    />
+                  </div>
+                  <span>Chatear con ClaudIA</span>
+                </div>
                 <ExternalLink size={14} />
               </Button>
               
@@ -128,8 +136,13 @@ const Dashboard = () => {
                   
                   <div className="p-3">
                     <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
-                      <Pizza size={18} className="text-claudia-primary" />
+                      <MessageCircle size={18} className="text-claudia-primary" />
                       <span>{userProfile.credits || '0'} mensajes disponibles</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
+                      <MessageCircle size={18} className="text-claudia-primary" />
+                      <span>{userProfile.reminders || '0'} recordatorios disponibles</span>
                     </div>
                     
                     <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">

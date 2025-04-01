@@ -13,7 +13,7 @@ const HeroSection: React.FC = () => {
     navigate('/login');
   };
 
-  return <section className="min-h-[85vh] flex flex-col items-center justify-center pt-8 px-6 relative overflow-hidden">
+  return <section className="min-h-[80vh] flex flex-col items-center justify-center px-6 relative overflow-hidden">
       {/* Abstract Background */}
       <div className="absolute inset-0 -z-10 bg-gradient-radial from-claudia-muted to-background opacity-70"></div>
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-claudia-secondary via-transparent to-transparent opacity-40"></div>
@@ -47,7 +47,7 @@ const HeroSection: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in" style={{
         animationDelay: '400ms'
       }}>
-          {/* Botón de Chatear con ClaudIA - Estilo similar al Dashboard */}
+          {/* Botón de Chatear con ClaudIA - Actualizado con estilo consistente */}
           <Button 
             href="https://wa.me/573128310805" 
             variant="primary" 
