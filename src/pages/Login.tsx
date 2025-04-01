@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user, signIn, loading: authLoading } = useAuth();
+  const { user, userProfile, signIn, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,10 +18,10 @@ const Login = () => {
 
   useEffect(() => {
     // Redirect if user is already logged in
-    if (user) {
+    if (user && userProfile) {
       navigate('/dashboard');
     }
-  }, [navigate, user]);
+  }, [navigate, user, userProfile]);
   
   const validateForm = () => {
     setErrorMessage(null);

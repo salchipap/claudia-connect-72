@@ -116,7 +116,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
       console.error('Error logging in:', error);
       toast({
         title: "Error",
-        description: "Ocurrió un error durante el inicio de sesión. Por favor, intenta de nuevo.",
+        description: error.message || "Ocurrió un error durante el inicio de sesión. Por favor, intenta de nuevo.",
         variant: "destructive",
       });
     } finally {
