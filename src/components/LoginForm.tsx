@@ -18,6 +18,7 @@ const LoginForm = () => {
     showVerification,
     setShowVerification,
     emailForVerification,
+    userIdForVerification,
     handleSubmit
   } = useLoginForm();
 
@@ -97,6 +98,7 @@ const LoginForm = () => {
           isOpen={showVerification} 
           onClose={() => setShowVerification(false)}
           email={emailForVerification}
+          userId={userIdForVerification}
         />
       )}
     </div>

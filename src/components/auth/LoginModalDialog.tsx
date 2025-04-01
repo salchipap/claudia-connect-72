@@ -22,6 +22,7 @@ const LoginModalDialog: React.FC<LoginModalDialogProps> = ({ onClose }) => {
     showVerification,
     setShowVerification,
     emailForVerification,
+    userIdForVerification,
     handleSubmit
   } = useLoginForm();
 
@@ -106,6 +107,7 @@ const LoginModalDialog: React.FC<LoginModalDialogProps> = ({ onClose }) => {
           isOpen={showVerification} 
           onClose={() => setShowVerification(false)}
           email={emailForVerification}
+          userId={userIdForVerification}
         />
       )}
     </>

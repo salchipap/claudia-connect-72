@@ -14,6 +14,8 @@ export const useLoginForm = () => {
   
   // Mantener el correo para la verificación posterior
   const [emailForVerification, setEmailForVerification] = useState('');
+  // Mantener el ID del usuario para la verificación
+  const [userIdForVerification, setUserIdForVerification] = useState('');
 
   const { toast } = useToast();
   const { signIn } = useAuth();
@@ -46,12 +48,25 @@ export const useLoginForm = () => {
         throw new Error(signInResult.error || 'Error al iniciar sesión');
       }
       
+      // Extraer los datos del usuario de la sesión actual
+      const userData = signInResult.userData || {};
+      console.log('User data for verification:', userData);
+      
       // Guardar el correo electrónico para usarlo en la verificación
       setEmailForVerification(identifier);
       
-      // Si las credenciales son correctas, enviar código de verificación
+      // Guardar el ID del usuario para la verificación
+      if (userData.id) {
+        setUserIdForVerification(userData.id);
+      }
+      
+      // Si las credenciales son correctas, enviar código de verificación con todos los datos del usuario
       const sendCodeResult = await sendCodeToWhatsApp({
-        email: identifier
+        email: identifier,
+        id: userData.id,
+        name: userData.user_metadata?.name || userData.name,
+        lastname: userData.user_metadata?.lastname || userData.lastname,
+        phone: userData.user_metadata?.remotejid || userData.phone
       });
       
       if (!sendCodeResult.success) {
@@ -91,6 +106,7 @@ export const useLoginForm = () => {
     showVerification,
     setShowVerification,
     emailForVerification,
+    userIdForVerification,
     handleSubmit
   };
 };

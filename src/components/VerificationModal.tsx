@@ -9,12 +9,14 @@ type VerificationModalProps = {
   isOpen: boolean;
   onClose: () => void;
   email: string;
+  userId?: string;
 };
 
 const VerificationModal: React.FC<VerificationModalProps> = ({ 
   isOpen, 
   onClose,
-  email
+  email,
+  userId
 }) => {
   const { toast } = useToast();
   const [code, setCode] = useState('');
@@ -48,6 +50,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
       const response = await verifyCodeWithWebhook({
         code,
         email,
+        userId
       });
       
       if (response.success) {
@@ -85,7 +88,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-2 text-claudia-white">Verificación</h2>
             <p className="text-claudia-white/70 mb-6">
-              Hemos enviado un código de verificación a tu correo electrónico. Por favor, ingrésalo a continuación para completar tu registro.
+              Hemos enviado un código de verificación a tu WhatsApp. Por favor, ingrésalo a continuación para completar tu inicio de sesión.
             </p>
             
             <form onSubmit={handleSubmit} className="space-y-4">
