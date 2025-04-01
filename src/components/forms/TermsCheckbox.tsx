@@ -28,7 +28,7 @@ const TermsCheckbox: React.FC<TermsCheckboxProps> = ({
         htmlFor={id}
         className="text-sm text-claudia-white/80"
       >
-        Acepto los <Link to="/terms" onClick={onLinkClick} className="text-claudia-primary hover:underline">Términos y Condiciones</Link> de ClaudIA
+        Acepto voluntariamente los <Link to="/terms" onClick={onLinkClick} className="text-claudia-primary hover:underline">Términos y Condiciones</Link> de ClaudIA, incluyendo el tratamiento de mis datos personales
       </label>
     </div>
   );

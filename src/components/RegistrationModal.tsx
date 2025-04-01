@@ -28,79 +28,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
     }
   };
   
-  const validateForm = (formData: RegistrationFormData) => {
-    if (!formData.name.trim()) {
-      toast({
-        title: "Error",
-        description: "Por favor, ingresa tu nombre.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    if (!formData.lastname.trim()) {
-      toast({
-        title: "Error",
-        description: "Por favor, ingresa tu apellido.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast({
-        title: "Error",
-        description: "Por favor, ingresa un correo electrónico válido.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    // Validate phone number without country code
-    const phoneRegex = /^\d{7,15}$/;
-    if (!phoneRegex.test(formData.phoneNumber.replace(/\D/g, ''))) {
-      toast({
-        title: "Error",
-        description: "Por favor, ingresa un número de teléfono válido (solo números).",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    if (formData.password.length < 6) {
-      toast({
-        title: "Error",
-        description: "La contraseña debe tener al menos 6 caracteres.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Las contraseñas no coinciden.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    if (!formData.acceptedTerms) {
-      toast({
-        title: "Error",
-        description: "Debes aceptar los términos y condiciones para continuar.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    return true;
-  };
-  
   const handleSubmit = async (formData: RegistrationFormData) => {
-    if (!validateForm(formData)) return;
-    
     setIsLoading(true);
     
     try {
@@ -131,15 +59,15 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
       } else {
         toast({
           title: "Error en el registro",
-          description: response.message,
+          description: response.message || "Hubo un problema al registrar tu cuenta.",
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
       toast({
         title: "Error",
-        description: "Ocurrió un error durante el registro. Por favor, intenta de nuevo.",
+        description: error.message || "Ocurrió un error durante el registro. Por favor, intenta de nuevo.",
         variant: "destructive",
       });
     } finally {

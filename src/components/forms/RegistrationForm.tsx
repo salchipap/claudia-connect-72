@@ -45,19 +45,68 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
     acceptedTerms: initialData.acceptedTerms || false,
   });
 
+  const [errors, setErrors] = useState<Partial<Record<keyof RegistrationFormData, string>>>({});
+
   const handleChange = (field: keyof RegistrationFormData) => (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+    // Clear error when field is edited
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
   };
 
   const handleTermsChange = (checked: boolean) => {
     setFormData((prev) => ({ ...prev, acceptedTerms: checked }));
+    if (errors.acceptedTerms) {
+      setErrors(prev => ({ ...prev, acceptedTerms: undefined }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<Record<keyof RegistrationFormData, string>> = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = "Por favor, ingresa tu nombre";
+    }
+    
+    if (!formData.lastname.trim()) {
+      newErrors.lastname = "Por favor, ingresa tu apellido";
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Por favor, ingresa un correo electrónico válido";
+    }
+    
+    const phoneRegex = /^\d{7,15}$/;
+    if (!phoneRegex.test(formData.phoneNumber.replace(/\D/g, ''))) {
+      newErrors.phoneNumber = "Por favor, ingresa un número de teléfono válido (solo números)";
+    }
+    
+    if (formData.password.length < 6) {
+      newErrors.password = "La contraseña debe tener al menos 6 caracteres";
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Las contraseñas no coinciden";
+    }
+    
+    if (!formData.acceptedTerms) {
+      newErrors.acceptedTerms = "Debes aceptar los términos y condiciones para continuar";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    if (validateForm()) {
+      onSubmit(formData);
+    }
   };
 
   const handleCountryCodeChange = (value: string) => {
@@ -79,6 +128,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
         placeholder="Tu nombre"
         disabled={isLoading}
         icon={User}
+        error={errors.name}
       />
       
       <FormInput
@@ -90,6 +140,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
         placeholder="Tu apellido"
         disabled={isLoading}
         icon={User}
+        error={errors.lastname}
       />
       
       <FormInput
@@ -101,6 +152,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
         placeholder="nombre@ejemplo.com"
         disabled={isLoading}
         icon={Mail}
+        error={errors.email}
       />
       
       <PhoneInputGroup
@@ -109,6 +161,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
         onCountryCodeChange={handleCountryCodeChange}
         onPhoneNumberChange={handleChange('phoneNumber')}
         disabled={isLoading}
+        error={errors.phoneNumber}
       />
       
       <FormInput
@@ -120,6 +173,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
         placeholder="Mínimo 6 caracteres"
         disabled={isLoading}
         icon={Lock}
+        error={errors.password}
       />
       
       <FormInput
@@ -131,14 +185,20 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
         placeholder="Confirma tu contraseña"
         disabled={isLoading}
         icon={Lock}
+        error={errors.confirmPassword}
       />
       
-      <TermsCheckbox
-        id={isModal ? "modal-terms" : "terms"}
-        checked={formData.acceptedTerms}
-        onCheckedChange={handleTermsChange}
-        onLinkClick={isModal ? onCancel : undefined}
-      />
+      <div className="space-y-1">
+        <TermsCheckbox
+          id={isModal ? "modal-terms" : "terms"}
+          checked={formData.acceptedTerms}
+          onCheckedChange={handleTermsChange}
+          onLinkClick={isModal ? onCancel : undefined}
+        />
+        {errors.acceptedTerms && (
+          <p className="text-red-500 text-xs ml-7">{errors.acceptedTerms}</p>
+        )}
+      </div>
       
       <div className={`${isModal ? 'flex justify-end space-x-3' : ''} pt-2`}>
         {isModal && onCancel && (
