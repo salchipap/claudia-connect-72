@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import Button from './Button';
 import { useToast } from "@/hooks/use-toast";
 import { loginUser } from '@/utils/api';
@@ -11,6 +11,8 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Lock, Phone } from 'lucide-react';
 import CountrySelect from '@/components/CountrySelect';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 type LoginModalProps = {
   isOpen: boolean;
@@ -31,6 +33,8 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [countryCode, setCountryCode] = useState('+57');
+  const navigate = useNavigate();
+  const { signIn } = useAuth();
   
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -57,29 +61,59 @@ const LoginModal: React.FC<LoginModalProps> = ({
       // Format phone number with WhatsApp format
       const formattedPhone = fullPhoneNumber.startsWith('+') ? fullPhoneNumber.substring(1) : fullPhoneNumber;
       
-      const response = await loginUser({
-        phone: formattedPhone,
-        password: values.password
+      try {
+        console.log('Intentando login a través de webhook');
+        const response = await loginUser({
+          phone: formattedPhone,
+          password: values.password
+        });
+        
+        if (response.success) {
+          toast({
+            title: "Inicio de sesión exitoso",
+            description: "Bienvenido a ClaudIA.",
+          });
+          handleClose();
+          
+          // Redirect to WhatsApp after successful login
+          window.location.href = "https://wa.me/573128310805";
+          return;
+        }
+      } catch (webhookError) {
+        console.log('Error en webhook, intentando autenticación con Supabase:', webhookError);
+        // Si falla el webhook, intentamos con Supabase
+        try {
+          // Usar email como nombre de usuario para Supabase - concatenar el número con @claudia.ai
+          const email = `${formattedPhone}@claudia.ai`;
+          const { data, error } = await signIn(email, values.password);
+          
+          if (error) {
+            throw error;
+          }
+          
+          toast({
+            title: "Inicio de sesión exitoso",
+            description: "Bienvenido a ClaudIA.",
+          });
+          
+          handleClose();
+          navigate('/dashboard');
+          return;
+        } catch (supabaseError: any) {
+          console.error('Error en autenticación con Supabase:', supabaseError);
+          throw supabaseError;
+        }
+      }
+      
+      // Si llegamos aquí es porque ambos métodos fallaron pero no hubo excepción
+      toast({
+        title: "Error en el inicio de sesión",
+        description: "Credenciales inválidas o servicio no disponible.",
+        variant: "destructive",
       });
       
-      if (response.success) {
-        toast({
-          title: "Inicio de sesión exitoso",
-          description: "Bienvenido a ClaudIA.",
-        });
-        handleClose();
-        
-        // Redirect to WhatsApp after successful login
-        window.location.href = "https://wa.me/573128310805";
-      } else {
-        toast({
-          title: "Error en el inicio de sesión",
-          description: response.message,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (error: any) {
+      console.error('Error logging in:', error);
       toast({
         title: "Error",
         description: "Ocurrió un error durante el inicio de sesión. Por favor, intenta de nuevo.",
@@ -99,8 +133,8 @@ const LoginModal: React.FC<LoginModalProps> = ({
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-claudia-primary opacity-10 rounded-tr-full -z-10"></div>
           
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-1 text-claudia-white">Iniciar Sesión</h2>
-            <p className="text-claudia-white/70 mb-6">Ingresa con tu número de WhatsApp y contraseña</p>
+            <DialogTitle className="text-2xl font-bold mb-1 text-claudia-white">Iniciar Sesión</DialogTitle>
+            <DialogDescription className="text-claudia-white/70 mb-6">Ingresa con tu número de WhatsApp y contraseña</DialogDescription>
             
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

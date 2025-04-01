@@ -26,7 +26,7 @@ const Login = () => {
     if (!email.trim()) {
       toast({
         title: "Error",
-        description: "Please enter your email.",
+        description: "Por favor ingresa tu email.",
         variant: "destructive",
       });
       return false;
@@ -35,7 +35,7 @@ const Login = () => {
     if (!password.trim()) {
       toast({
         title: "Error",
-        description: "Please enter your password.",
+        description: "Por favor ingresa tu contraseña.",
         variant: "destructive",
       });
       return false;
@@ -59,16 +59,16 @@ const Login = () => {
       }
       
       toast({
-        title: "Login successful",
-        description: "Welcome back!",
+        title: "Inicio de sesión exitoso",
+        description: "¡Bienvenido de nuevo!",
       });
       
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
-        title: "Login error",
-        description: error.message || "Invalid email or password. Please try again.",
+        title: "Error de inicio de sesión",
+        description: error.message || "Email o contraseña inválidos. Por favor intenta de nuevo.",
         variant: "destructive",
       });
     } finally {
@@ -91,8 +91,8 @@ const Login = () => {
       <main className="pt-20 pb-12 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-claudia-white">Log in to ClaudIA</h1>
-            <p className="text-claudia-white/70 text-lg">Welcome back! Please enter your credentials</p>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-claudia-white">Iniciar sesión en ClaudIA</h1>
+            <p className="text-claudia-white/70 text-lg">¡Bienvenido de nuevo! Por favor ingresa tus credenciales</p>
           </div>
           
           <div className="max-w-md mx-auto bg-[#1a2a30] rounded-lg shadow-xl p-8 relative overflow-hidden">
@@ -103,16 +103,16 @@ const Login = () => {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Email
+                  Email o Teléfono
                 </label>
                 <div className="relative">
                   <input
                     id="email"
-                    type="email"
+                    type="text"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="name@example.com"
+                    placeholder="email@ejemplo.com o 573128310805"
                     disabled={isLoading}
                   />
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
@@ -121,7 +121,7 @@ const Login = () => {
               
               <div>
                 <label htmlFor="password" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Password
+                  Contraseña
                 </label>
                 <div className="relative">
                   <input
@@ -130,7 +130,7 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="Your password"
+                    placeholder="Tu contraseña"
                     disabled={isLoading}
                   />
                   <Lock className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
@@ -144,14 +144,14 @@ const Login = () => {
                   loading={isLoading}
                   className="w-full"
                 >
-                  Log in
+                  Iniciar Sesión
                 </Button>
               </div>
               
               <div className="text-center mt-4 text-claudia-white/70 text-sm">
-                Don't have an account?{" "}
+                ¿No tienes una cuenta?{" "}
                 <Link to="/register" className="text-claudia-primary hover:underline">
-                  Register
+                  Regístrate
                 </Link>
               </div>
             </form>

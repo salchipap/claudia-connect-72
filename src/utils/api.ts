@@ -1,3 +1,4 @@
+
 // API utility functions for handling webhook calls
 
 type VerificationRequest = {
@@ -54,12 +55,19 @@ export const registerUserWithWebhook = async (userData: VerificationRequest): Pr
   try {
     console.log('Sending registration data to webhook:', userData);
     
+    // Establecer un timeout para la solicitud fetch
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos de timeout
+    
     const response = await fetch('https://nn.tumejorversionhoy.shop/webhook/9d6e3fae-6700-4314-aa41-8e1dadae0de1', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(userData),
+      signal: controller.signal
+    }).finally(() => {
+      clearTimeout(timeoutId);
     });
     
     if (!response.ok) {
@@ -88,12 +96,19 @@ export const verifyCodeWithWebhook = async (verificationData: CodeVerificationRe
   try {
     console.log('Sending code verification data to webhook:', verificationData);
     
+    // Establecer un timeout para la solicitud fetch
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos de timeout
+    
     const response = await fetch('https://nn.tumejorversionhoy.shop/webhook/c1530bfd-a2c3-4c82-bb88-3e956d20b113', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(verificationData),
+      signal: controller.signal
+    }).finally(() => {
+      clearTimeout(timeoutId);
     });
     
     if (!response.ok) {
@@ -131,8 +146,10 @@ export const loginUser = async (loginData: LoginRequest): Promise<LoginResponse>
   try {
     console.log('Sending login data:', loginData);
     
-    // Aquí normalmente llamaríamos a un endpoint de login,
-    // por ahora usaremos el mismo webhook para simular
+    // Establecer un timeout para la solicitud fetch
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 segundos de timeout
+    
     const response = await fetch('https://nn.tumejorversionhoy.shop/webhook/9d6e3fae-6700-4314-aa41-8e1dadae0de1', {
       method: 'POST',
       headers: {
@@ -142,6 +159,9 @@ export const loginUser = async (loginData: LoginRequest): Promise<LoginResponse>
         ...loginData,
         action: 'login'
       }),
+      signal: controller.signal
+    }).finally(() => {
+      clearTimeout(timeoutId);
     });
     
     if (!response.ok) {
@@ -157,11 +177,7 @@ export const loginUser = async (loginData: LoginRequest): Promise<LoginResponse>
     };
   } catch (error) {
     console.error('Error logging in:', error);
-    return { 
-      success: false, 
-      message: 'Error al iniciar sesión.',
-      error: error instanceof Error ? error.message : 'Error desconocido'
-    };
+    throw error; // Re-lanzamos el error para manejarlo en el componente
   }
 };
 
