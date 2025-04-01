@@ -1,6 +1,11 @@
 
+import { User as SupabaseUser } from '@supabase/supabase-js';
+
 export interface User extends SupabaseUser {
   // Add any additional user properties here
+  user_metadata?: { [key: string]: any };
+  id: string;
+  email?: string;
 }
 
 export interface UserProfile {
@@ -14,7 +19,7 @@ export interface UserProfile {
   status?: string;
   last_message?: string;
   credits?: string;
-  reminders?: string; // Add this line
+  reminders?: string;
   type_user?: string;
 }
 
