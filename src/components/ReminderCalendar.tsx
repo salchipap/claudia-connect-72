@@ -114,18 +114,11 @@ const ReminderCalendar = () => {
     try {
       const sendDate = new Date(newReminder.send_date);
       
-      // Ensure we get the remotejid from the user profile
+      // Get the remotejid from the user profile, but don't block if it's not available
       const userRemotejid = userProfile?.remotejid || '';
       
-      if (!userRemotejid) {
-        toast({
-          title: "Error",
-          description: "No se encontró un número de teléfono asociado a tu perfil. Por favor actualiza tu perfil.",
-          variant: "destructive",
-        });
-        setCreatingReminder(false);
-        return;
-      }
+      // Create a placeholder value if remotejid is not available
+      const reminderRemotejid = userRemotejid || (user.email || 'placeholder');
       
       const reminderData = {
         user_id: user.id,
@@ -134,7 +127,7 @@ const ReminderCalendar = () => {
         description: newReminder.description || null,
         date: selectedDate.toISOString(),
         send_date: sendDate.toISOString(),
-        remotejid: userRemotejid, // Explicitly use the user's remotejid
+        remotejid: reminderRemotejid, // Use available remotejid or a placeholder
         status: 'pending',
         origin: 'manual',
       };
@@ -387,7 +380,14 @@ const ReminderCalendar = () => {
               <span className="text-claudia-white/80">
                 Número de teléfono: {userProfile?.remotejid || 'No disponible'}
               </span>
+              {!userProfile?.remotejid && (
+                <div className="ml-auto px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs rounded-full">
+                  Opcional
+                </div>
+              )}
             </div>
+            
+            {/* ... keep existing code (form inputs) */}
             
             <div className="space-y-2">
               <Label htmlFor="title" className="text-claudia-white">Título</Label>
@@ -450,7 +450,7 @@ const ReminderCalendar = () => {
               type="button" 
               onClick={handleCreateReminder}
               className="bg-claudia-primary text-claudia-white hover:bg-claudia-primary/80"
-              disabled={creatingReminder || !userProfile?.remotejid}
+              disabled={creatingReminder}
             >
               {creatingReminder ? (
                 <>

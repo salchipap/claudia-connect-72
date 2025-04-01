@@ -69,6 +69,45 @@ export const fetchUserProfile = async (userId: string) => {
       }
     }
     
+    // Si no se encontró perfil, creamos uno básico para que la aplicación funcione
+    if (!data && supabase.auth.getUser) {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
+      
+      if (user) {
+        console.log('No se encontró perfil, creando uno básico para:', user.id);
+        
+        // Intentamos extraer un remotejid del email si tiene formato teléfono@claudia.ai
+        let remotejid = null;
+        if (user.email) {
+          const emailParts = user.email.split('@');
+          if (emailParts.length === 2 && emailParts[1] === 'claudia.ai') {
+            remotejid = emailParts[0];
+          }
+        }
+        
+        const { data: newProfile, error: insertError } = await supabase
+          .from('users')
+          .insert({
+            id: user.id,
+            email: user.email,
+            remotejid: remotejid,
+            status: 'active',
+            type_user: 'regular',
+            credits: '10'
+          })
+          .select()
+          .maybeSingle();
+        
+        if (insertError) {
+          console.error('Error al crear perfil básico:', insertError);
+          return null;
+        }
+        
+        data = newProfile;
+      }
+    }
+    
     if (data) {
       console.log('Perfil de usuario encontrado:', data);
       return data;
