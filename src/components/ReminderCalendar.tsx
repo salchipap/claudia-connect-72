@@ -103,16 +103,17 @@ const ReminderCalendar = () => {
                   selected: 'bg-claudia-primary text-claudia-white',
                   today: 'bg-claudia-primary/10 text-claudia-white',
                 }}
-                components={{
-                  Day: ({ date, ...props }) => {
-                    const customClassName = dayWithRemindersClassname(date);
-                    return (
-                      <div
-                        {...props}
-                        className={`${props.className} ${customClassName}`}
-                      />
-                    );
-                  },
+                modifiers={{
+                  highlighted: (date) => reminderDates.some(reminderDate => 
+                    isSameDay(reminderDate, date)
+                  )
+                }}
+                modifiersStyles={{
+                  highlighted: { 
+                    backgroundColor: 'rgba(var(--claudia-primary), 0.4)',
+                    borderRadius: '100%',
+                    color: 'var(--claudia-white)'
+                  }
                 }}
               />
             </PopoverContent>
