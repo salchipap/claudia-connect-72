@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -53,10 +52,36 @@ export function useLoginForm() {
       console.log(`Login attempt - Method: ${loginMethod}, Identifier: ${identifier}`);
       
       const isPhoneLogin = loginMethod === 'phone';
+      let formattedIdentifier = identifier;
+      
+      // Format the phone number for login if needed
+      if (isPhoneLogin) {
+        // Strip any non-digit characters
+        const cleanPhone = identifier.replace(/\D/g, '');
+        
+        // Handle country code formatting
+        const cleanCountryCode = countryCode.startsWith('+') 
+          ? countryCode.substring(1) 
+          : countryCode;
+        
+        // Format correctly based on input
+        if (cleanPhone.startsWith('0')) {
+          // If number starts with 0, remove it and add country code
+          formattedIdentifier = cleanCountryCode + cleanPhone.substring(1);
+        } else if (cleanPhone.startsWith(cleanCountryCode)) {
+          // If number already includes country code, use as is
+          formattedIdentifier = cleanPhone;
+        } else {
+          // Otherwise, add country code to number
+          formattedIdentifier = cleanCountryCode + cleanPhone;
+        }
+        
+        console.log('Formatted phone for login:', formattedIdentifier);
+      }
       
       // Pass information to signIn about the login method
       const { data, error } = await signIn(
-        identifier,
+        isPhoneLogin ? formattedIdentifier : identifier,
         password,
         isPhoneLogin,
         countryCode
