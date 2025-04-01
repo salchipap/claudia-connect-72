@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReminderCalendar from '@/components/ReminderCalendar';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, UserCircle, Mail, Calendar, Pizza, Phone } from 'lucide-react';
+import { LogOut, UserCircle, Mail, Calendar, Pizza, Phone, MessageCircle, ExternalLink } from 'lucide-react';
 import Button from '@/components/Button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -47,6 +47,19 @@ const Dashboard = () => {
     }
   };
 
+  // Función para abrir WhatsApp
+  const openWhatsAppChat = () => {
+    // Número de WhatsApp de ClaudIA (reemplazar por el número correcto)
+    const whatsappNumber = "+573128310805";
+    const message = "Hola ClaudIA, quiero chatear contigo";
+    
+    // Crear la URL de WhatsApp
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    
+    // Abrir en una nueva pestaña
+    window.open(whatsappUrl, '_blank');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#142126] flex items-center justify-center">
@@ -71,72 +84,84 @@ const Dashboard = () => {
           <div className="mb-8 flex justify-between items-center">
             <h1 className="text-3xl md:text-4xl font-bold text-claudia-white">Dashboard</h1>
             
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="flex items-center gap-2 p-2 rounded-full bg-[#1a2a30] hover:bg-claudia-primary/20 transition-colors">
-                  <Avatar className="h-10 w-10 border-2 border-claudia-primary/30">
-                    <AvatarImage src={userProfile.pic || undefined} alt={userProfile.name || 'Usuario'} />
-                    <AvatarFallback className="bg-claudia-primary/20 text-claudia-primary">
-                      {userProfile.name ? userProfile.name[0].toUpperCase() : 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80 p-0 bg-[#1a2a30] border-claudia-primary/20">
-                <div className="p-4 bg-[#142126] rounded-t-md border-b border-claudia-primary/20">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-14 w-14 border-2 border-claudia-primary/30">
+            <div className="flex items-center gap-4">
+              <Button 
+                onClick={openWhatsAppChat}
+                variant="primary"
+                className="flex items-center gap-2"
+              >
+                <MessageCircle size={18} />
+                <span>Chatear con ClaudIA</span>
+                <ExternalLink size={14} />
+              </Button>
+              
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center gap-2 p-2 rounded-full bg-[#1a2a30] hover:bg-claudia-primary/20 transition-colors">
+                    <Avatar className="h-10 w-10 border-2 border-claudia-primary/30">
                       <AvatarImage src={userProfile.pic || undefined} alt={userProfile.name || 'Usuario'} />
                       <AvatarFallback className="bg-claudia-primary/20 text-claudia-primary">
                         {userProfile.name ? userProfile.name[0].toUpperCase() : 'U'}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <h2 className="text-lg font-semibold text-claudia-white">
-                        {userProfile.name || 'Usuario'} {userProfile.lastname || ''}
-                      </h2>
-                      <p className="text-sm text-claudia-white/70">
-                        {user.email || userProfile.email || 'No email'}
-                      </p>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-0 bg-[#1a2a30] border-claudia-primary/20">
+                  <div className="p-4 bg-[#142126] rounded-t-md border-b border-claudia-primary/20">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-14 w-14 border-2 border-claudia-primary/30">
+                        <AvatarImage src={userProfile.pic || undefined} alt={userProfile.name || 'Usuario'} />
+                        <AvatarFallback className="bg-claudia-primary/20 text-claudia-primary">
+                          {userProfile.name ? userProfile.name[0].toUpperCase() : 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h2 className="text-lg font-semibold text-claudia-white">
+                          {userProfile.name || 'Usuario'} {userProfile.lastname || ''}
+                        </h2>
+                        <p className="text-sm text-claudia-white/70">
+                          {user.email || userProfile.email || 'No email'}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                <div className="p-3">
-                  <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
-                    <Pizza size={18} className="text-claudia-primary" />
-                    <span>{userProfile.credits || '0'} mensajes disponibles</span>
-                  </div>
                   
-                  <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
-                    <Phone size={18} className="text-claudia-primary" />
-                    <span>Tel: {userPhoneNumber}</span>
+                  <div className="p-3">
+                    <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
+                      <Pizza size={18} className="text-claudia-primary" />
+                      <span>{userProfile.credits || '0'} mensajes disponibles</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
+                      <Phone size={18} className="text-claudia-primary" />
+                      <span>Tel: {userPhoneNumber}</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
+                      <Mail size={18} className="text-claudia-primary" />
+                      <span>{user.email || userProfile.email || 'No disponible'}</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 p-2 text-claudia-white">
+                      <Calendar size={18} className="text-claudia-primary" />
+                      <span>Tipo: {userProfile.type_user || 'regular'}</span>
+                    </div>
+                    
+                    <div className="mt-4 pt-3 border-t border-claudia-primary/20">
+                      <Button 
+                        onClick={handleSignOut}
+                        loading={isLoggingOut}
+                        variant="ghost"
+                        className="w-full text-claudia-white hover:bg-claudia-primary/20 hover:text-claudia-white"
+                      >
+                        <LogOut size={16} className="mr-2" />
+                        Cerrar Sesión
+                      </Button>
+                    </div>
                   </div>
-                  
-                  <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
-                    <Mail size={18} className="text-claudia-primary" />
-                    <span>{user.email || userProfile.email || 'No disponible'}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-2 p-2 text-claudia-white">
-                    <Calendar size={18} className="text-claudia-primary" />
-                    <span>Tipo: {userProfile.type_user || 'regular'}</span>
-                  </div>
-                  
-                  <div className="mt-4 pt-3 border-t border-claudia-primary/20">
-                    <Button 
-                      onClick={handleSignOut}
-                      loading={isLoggingOut}
-                      variant="ghost"
-                      className="w-full text-claudia-white hover:bg-claudia-primary/20 hover:text-claudia-white"
-                    >
-                      <LogOut size={16} className="mr-2" />
-                      Cerrar Sesión
-                    </Button>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
           
           <Card className="border-claudia-primary/10 shadow-lg overflow-hidden">

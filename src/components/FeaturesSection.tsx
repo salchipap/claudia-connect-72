@@ -3,6 +3,7 @@ import React from 'react';
 import FeatureCard from './FeatureCard';
 import { Search, FileText, Image, Globe, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Button from './Button';
 
 const FeaturesSection: React.FC = () => {
   const features = [{
@@ -38,12 +39,13 @@ const FeaturesSection: React.FC = () => {
             ClaudIA integra tecnologías avanzadas para ofrecerte soluciones inteligentes en distintos escenarios
           </p>
           <div className="mt-8">
-            <Link 
+            <Button 
               to="/know-claudia" 
-              className="inline-block px-6 py-3 bg-claudia-primary/20 text-claudia-primary hover:bg-claudia-primary/30 transition-colors rounded-lg font-medium"
+              variant="primary"
+              className="bg-claudia-primary/20 text-claudia-primary hover:bg-claudia-primary/30"
             >
               Conoce más sobre ClaudIA
-            </Link>
+            </Button>
           </div>
         </div>
         

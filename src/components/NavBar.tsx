@@ -5,7 +5,7 @@ import Button from './Button';
 import LoginModal from './LoginModal';
 import RegistrationModal from './RegistrationModal';
 import { useAuth } from '@/hooks/useAuth';
-import { UserCircle, Pizza, Phone } from 'lucide-react';
+import { UserCircle, Pizza, Phone, MessageCircle } from 'lucide-react';
 
 const NavBar: React.FC = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -51,8 +51,9 @@ const NavBar: React.FC = () => {
 
   return (
     <nav className="bg-[#142126] p-4 flex items-center justify-between text-claudia-foreground">
-      <Link to="/" className="text-lg font-bold">
-        ClaudIA
+      <Link to="/" className="text-xl font-bold">
+        <span className="text-claudia-white">Claud</span>
+        <span className="text-claudia-primary">IA</span>
       </Link>
 
       <div className="space-x-4">
@@ -95,7 +96,7 @@ const NavBar: React.FC = () => {
               variant="outlined"
               className="text-claudia-white border-claudia-white"
             >
-              Log In
+              Iniciar Sesión
             </Button>
             <Button 
               onClick={openRegistrationModal}
