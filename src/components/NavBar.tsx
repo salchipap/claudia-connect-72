@@ -58,7 +58,7 @@ const NavBar: React.FC = () => {
             >
               Log In
             </Button>
-            <Button onClick={openRegistrationModal}>Register</Button>
+            <Button onClick={openRegistrationModal}>Registrarme</Button>
           </>
         )}
       </div>

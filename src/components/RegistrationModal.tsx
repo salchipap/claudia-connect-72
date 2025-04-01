@@ -75,6 +75,8 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
