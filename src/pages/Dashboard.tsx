@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReminderCalendar from '@/components/ReminderCalendar';
@@ -181,24 +182,19 @@ const Dashboard = () => {
         </div>
       </header>
       
-      <main className="py-8 px-4 md:px-6">
+      <main className="py-4 md:py-8 px-4 md:px-6">
         <div className="max-w-5xl mx-auto">
           <Card className="border-claudia-primary/10 shadow-lg overflow-hidden relative">
-            <div className="flex justify-between items-center p-4 border-b border-claudia-primary/10">
-              <div className="flex items-center gap-2">
-                <Calendar size={20} className="text-claudia-primary" />
-                <h2 className="text-xl font-semibold text-claudia-white">Calendario de Recordatorios</h2>
-              </div>
-              
+            {isMobile ? (
               <Button
                 variant="primary"
-                size="xs"
-                className="absolute top-4 right-4 z-10"
+                size="sm"
+                className="absolute top-3 right-3 z-10"
                 icon={<Plus size={16} />}
               >
-                {isMobile ? "" : "Crear Recordatorio"}
+                Crear
               </Button>
-            </div>
+            ) : null}
             <ReminderCalendar />
           </Card>
         </div>
