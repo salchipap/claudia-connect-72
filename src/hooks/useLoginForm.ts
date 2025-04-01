@@ -30,13 +30,6 @@ export const useLoginForm = () => {
       return;
     }
     
-    // Verificar formato de correo electrónico
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(identifier)) {
-      setErrorMessage('Por favor, ingresa un correo electrónico válido');
-      return;
-    }
-    
     setIsLoading(true);
     
     try {
