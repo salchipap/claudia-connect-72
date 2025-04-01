@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { format, isSameDay } from "date-fns";
@@ -114,11 +115,9 @@ const ReminderCalendar = () => {
     try {
       const sendDate = new Date(newReminder.send_date);
       
-      // Get the remotejid from the user profile, but don't block if it's not available
-      const userRemotejid = userProfile?.remotejid || '';
-      
-      // Create a placeholder value if remotejid is not available
-      const reminderRemotejid = userRemotejid || (user.email || 'placeholder');
+      // Siempre usar el número de teléfono (remotejid) del perfil del usuario
+      // Si no está disponible, usar un valor predeterminado para no bloquear la funcionalidad
+      const phoneNumber = userProfile?.remotejid || 'sin-telefono';
       
       const reminderData = {
         user_id: user.id,
@@ -127,7 +126,7 @@ const ReminderCalendar = () => {
         description: newReminder.description || null,
         date: selectedDate.toISOString(),
         send_date: sendDate.toISOString(),
-        remotejid: reminderRemotejid, // Use available remotejid or a placeholder
+        remotejid: phoneNumber, // Siempre usar el número de teléfono, nunca el correo
         status: 'pending',
         origin: 'manual',
       };
@@ -386,8 +385,6 @@ const ReminderCalendar = () => {
                 </div>
               )}
             </div>
-            
-            {/* ... keep existing code (form inputs) */}
             
             <div className="space-y-2">
               <Label htmlFor="title" className="text-claudia-white">Título</Label>
