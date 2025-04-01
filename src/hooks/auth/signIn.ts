@@ -17,7 +17,7 @@ export const signIn = async (email: string, password: string) => {
     
     console.log('Successfully signed in:', data);
     
-    // Siempre devolvemos el ID del usuario para usarlo en la verificación
+    // Siempre necesitamos verificación para el inicio de sesión
     return { 
       success: true,
       userId: data.user?.id,

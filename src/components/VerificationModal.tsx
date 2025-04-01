@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Dialog } from '@/components/ui/dialog';
 import Button from './Button';
 import { useToast } from "@/hooks/use-toast";
-import { verifyCodeWithWebhook } from '@/utils/api';
+import { verifyCodeWithWebhook, requestVerificationCode } from '@/utils/api';
+import { useNavigate } from 'react-router-dom';
 
 type VerificationModalProps = {
   isOpen: boolean;
@@ -19,6 +20,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
   userId
 }) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasSentCode, setHasSentCode] = useState(false);
@@ -31,28 +33,23 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
   
   const sendInitialRequest = async () => {
     try {
-      // Llamar al webhook para solicitar el código de verificación
-      const webhookUrl = "https://nn.tumejorversionhoy.shop/webhook/c1530bfd-a2c3-4c82-bb88-3e956d20b113";
+      // Llamar a la función para solicitar código
+      const result = await requestVerificationCode(email, userId);
       
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          userId,
-          action: 'request_code'
-        })
-      });
-      
-      console.log('Webhook response:', response);
       setHasSentCode(true);
       
-      toast({
-        title: "Código enviado",
-        description: "Hemos enviado un código de verificación a tu WhatsApp. Por favor, ingrésalo a continuación.",
-      });
+      if (result.success) {
+        toast({
+          title: "Código enviado",
+          description: "Hemos enviado un código de verificación a tu WhatsApp. Por favor, ingrésalo a continuación.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "No se pudo enviar la solicitud de verificación. Por favor, intenta de nuevo.",
+          variant: "destructive",
+        });
+      }
       
     } catch (error) {
       console.error('Error sending verification request:', error);
@@ -66,12 +63,12 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
   
   const handleClose = () => {
     if (!isLoading) {
-      onClose();
-      // Reset form after a short delay to avoid visual jumps
-      setTimeout(() => {
-        setCode('');
-        setHasSentCode(false);
-      }, 300);
+      // Cerrar modal sin verificación impide que el usuario continúe
+      toast({
+        title: "Verificación requerida",
+        description: "Debes verificar tu cuenta para continuar.",
+        variant: "destructive",
+      });
     }
   };
   
@@ -90,31 +87,18 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
     setIsLoading(true);
     
     try {
-      const webhookUrl = "https://nn.tumejorversionhoy.shop/webhook/c1530bfd-a2c3-4c82-bb88-3e956d20b113";
+      const result = await verifyCodeWithWebhook(email, code, userId);
       
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          userId,
-          code,
-          action: 'verify_code'
-        })
-      });
-      
-      const result = await response.json().catch(() => ({ success: false }));
-      
-      if (response.ok && (result.success || result.verified)) {
+      if (result.success) {
         toast({
           title: "Verificación exitosa",
           description: "Tu cuenta ha sido verificada correctamente.",
         });
-        handleClose();
         
-        // Redirect to WhatsApp after successful verification
+        // Cerrar el modal
+        onClose();
+        
+        // Redirigir a WhatsApp después de la verificación exitosa
         window.location.href = "https://wa.me/573128310805";
       } else {
         toast({
@@ -135,8 +119,38 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
     }
   };
   
+  const handleResendCode = async () => {
+    setIsLoading(true);
+    
+    try {
+      const result = await requestVerificationCode(email, userId);
+      
+      if (result.success) {
+        toast({
+          title: "Código reenviado",
+          description: "Hemos enviado un nuevo código de verificación a tu WhatsApp.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "No se pudo reenviar el código. Por favor, intenta de nuevo.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error resending code:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo reenviar el código. Por favor, intenta de nuevo.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={() => handleClose()}>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
         <div className="bg-[#142126] rounded-lg w-full max-w-md shadow-xl animate-fade-in-up text-claudia-white">
           <div className="p-6">
@@ -161,16 +175,17 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
                 />
               </div>
               
-              <div className="flex justify-end space-x-3 pt-2">
+              <div className="flex justify-between items-center pt-2">
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={handleClose}
+                  onClick={handleResendCode}
                   disabled={isLoading}
-                  className="text-claudia-white hover:text-claudia-primary"
+                  className="text-claudia-primary hover:text-claudia-white"
                 >
-                  Cancelar
+                  Reenviar código
                 </Button>
+                
                 <Button
                   type="submit"
                   variant="primary"

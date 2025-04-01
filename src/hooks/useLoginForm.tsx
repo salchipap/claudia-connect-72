@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/auth';
 import { useToast } from './use-toast';
-import { verifyCodeWithWebhook } from '@/utils/api';
+import { requestVerificationCode } from '@/utils/api';
 
 export function useLoginForm() {
   const { toast } = useToast();
@@ -62,12 +62,17 @@ export function useLoginForm() {
         return;
       }
       
-      // Siempre mostrar el modal de verificación después de un inicio de sesión exitoso
+      // Verificar si el usuario necesita verificación (ahora siempre es true)
       console.log('Login successful, showing verification modal');
       setEmailForVerification(identifier);
       if (result.userId) {
         setUserIdForVerification(result.userId);
       }
+      
+      // Solicitar código de verificación automáticamente
+      await requestVerificationCode(identifier, result.userId);
+      
+      // Mostrar modal de verificación
       setShowVerification(true);
       setIsLoading(false);
       
