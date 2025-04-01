@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import { useToast } from "@/hooks/use-toast";
@@ -25,90 +26,24 @@ const Registration = () => {
     }
   }, [location, navigate, user]);
   
-  const validateForm = (formData: RegistrationFormData) => {
-    if (!formData.name.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter your name.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    if (!formData.lastname.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter your last name.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    // Validate phone number without country code
-    const phoneRegex = /^\d{7,15}$/;
-    if (!phoneRegex.test(formData.phoneNumber.replace(/\D/g, ''))) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid phone number (numbers only).",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    if (formData.password.length < 6) {
-      toast({
-        title: "Error",
-        description: "Password must be at least 6 characters long.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    if (!formData.acceptedTerms) {
-      toast({
-        title: "Error",
-        description: "You must accept the terms and conditions to continue.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    return true;
-  };
-  
   const handleSubmit = async (formData: RegistrationFormData) => {
-    if (!validateForm(formData)) return;
-    
     setIsLoading(true);
     
     try {
+      // Limpiamos el número de teléfono para usar solo números
+      const cleanPhone = formData.phoneNumber.replace(/\D/g, '');
+      
       // Combine country code and phone number
-      const fullPhoneNumber = `${formData.countryCode}${formData.phoneNumber}`;
+      const fullPhoneNumber = `${formData.countryCode}${cleanPhone}`;
+      
+      // Format phone number with WhatsApp format (sin el + del código de país)
+      const formattedPhone = fullPhoneNumber.startsWith('+') ? fullPhoneNumber.substring(1) : fullPhoneNumber;
       
       // Register with Supabase Auth
       const { data, error } = await signUp(formData.email, formData.password, {
         name: formData.name,
         lastname: formData.lastname,
-        remotejid: fullPhoneNumber,
+        remotejid: formattedPhone,
         plan: selectedPlan || 'Basic'
       });
       

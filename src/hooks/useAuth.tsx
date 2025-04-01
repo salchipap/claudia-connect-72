@@ -188,7 +188,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   remotejid: metadata.remotejid,
                   status: 'active', // Cambiamos a 'active' para que pueda iniciar sesión inmediatamente
                   type_user: 'regular',
-                  credits: '0'
+                  credits: '10' // Asignamos 10 créditos por defecto
                 }
               ]);
               
@@ -247,7 +247,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   remotejid: remotejid,
                   status: 'active',
                   type_user: 'regular',
-                  credits: '0'
+                  credits: '10' // Asignamos 10 créditos por defecto
                 }]);
                 
               if (insertError) {

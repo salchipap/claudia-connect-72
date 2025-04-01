@@ -5,12 +5,13 @@ import Button from './Button';
 import LoginModal from './LoginModal';
 import RegistrationModal from './RegistrationModal';
 import { useAuth } from '@/hooks/useAuth';
+import { UserCircle } from 'lucide-react';
 
 const NavBar: React.FC = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, userProfile, signOut } = useAuth();
 
   const openLoginModal = () => {
     setIsLoginModalOpen(true);
@@ -35,6 +36,10 @@ const NavBar: React.FC = () => {
     navigate('/');
   };
 
+  const goToProfile = () => {
+    navigate('/dashboard');
+  };
+
   return (
     <nav className="bg-[#142126] p-4 flex items-center justify-between text-claudia-foreground">
       <Link to="/" className="text-lg font-bold">
@@ -43,14 +48,24 @@ const NavBar: React.FC = () => {
 
       <div className="space-x-4">
         {user ? (
-          <>
-            <Button onClick={() => navigate('/dashboard')} variant="secondary">
-              Dashboard
+          <div className="flex items-center gap-4">
+            {userProfile && (
+              <div className="hidden md:flex items-center gap-2 text-claudia-white/70">
+                <span>{userProfile.credits || '0'} créditos</span>
+              </div>
+            )}
+            <Button 
+              onClick={goToProfile} 
+              variant="ghost"
+              className="flex items-center gap-2 text-claudia-white hover:text-claudia-primary"
+            >
+              <UserCircle size={20} />
+              <span className="hidden md:inline">{userProfile?.name || 'Mi perfil'}</span>
             </Button>
-            <Button onClick={handleSignOut} variant="ghost">
-              Sign Out
+            <Button onClick={handleSignOut} variant="ghost" className="text-claudia-white hover:text-claudia-primary">
+              Cerrar Sesión
             </Button>
-          </>
+          </div>
         ) : (
           <>
             <Button

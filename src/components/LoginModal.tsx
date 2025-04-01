@@ -59,10 +59,13 @@ const LoginModal: React.FC<LoginModalProps> = ({
       
       // Si es teléfono, formateamos para convertirlo en email
       if (loginMethod === 'phone') {
-        // Combine country code and phone number
-        const fullPhoneNumber = `${countryCode}${values.identifier}`;
+        // Limpiamos el número de teléfono para usar solo números
+        const cleanPhone = values.identifier.replace(/\D/g, '');
         
-        // Format phone number with WhatsApp format
+        // Combine country code and phone number
+        const fullPhoneNumber = `${countryCode}${cleanPhone}`;
+        
+        // Format phone number with WhatsApp format (sin el + del código de país)
         const formattedPhone = fullPhoneNumber.startsWith('+') ? fullPhoneNumber.substring(1) : fullPhoneNumber;
         
         // Convertir a email para Supabase (usando el formato del teléfono como usuario)

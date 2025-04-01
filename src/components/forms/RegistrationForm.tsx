@@ -80,8 +80,10 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
       newErrors.email = "Por favor, ingresa un correo electrónico válido";
     }
     
+    // Limpiamos el número de teléfono para validar solo números
+    const cleanPhone = formData.phoneNumber.replace(/\D/g, '');
     const phoneRegex = /^\d{7,15}$/;
-    if (!phoneRegex.test(formData.phoneNumber.replace(/\D/g, ''))) {
+    if (!phoneRegex.test(cleanPhone)) {
       newErrors.phoneNumber = "Por favor, ingresa un número de teléfono válido (solo números)";
     }
     
