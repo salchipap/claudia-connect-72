@@ -1,6 +1,4 @@
 
-import { User as SupabaseUser } from '@supabase/supabase-js';
-
 export interface User extends SupabaseUser {
   // Add any additional user properties here
 }
