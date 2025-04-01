@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Lock, Mail } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
 import Button from '@/components/Button';
 import { useLoginForm } from '@/hooks/useLoginForm';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';

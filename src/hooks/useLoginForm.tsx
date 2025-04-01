@@ -5,8 +5,6 @@ import { useAuth } from '@/hooks/auth';
 import { useToast } from './use-toast';
 import { verifyCodeWithWebhook } from '@/utils/api';
 
-type LoginMethod = 'phone' | 'email';
-
 export function useLoginForm() {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -18,8 +16,6 @@ export function useLoginForm() {
   const [showVerification, setShowVerification] = useState(false);
   const [emailForVerification, setEmailForVerification] = useState('');
   const [userIdForVerification, setUserIdForVerification] = useState('');
-  const [loginMethod, setLoginMethod] = useState<LoginMethod>('email');
-  const [countryCode, setCountryCode] = useState('+57');
   
   const validateForm = () => {
     setErrorMessage(null);
@@ -27,7 +23,7 @@ export function useLoginForm() {
     if (!identifier.trim()) {
       toast({
         title: "Error",
-        description: `Por favor ingresa tu ${loginMethod === 'phone' ? 'teléfono' : 'email'}.`,
+        description: "Por favor ingresa tu email.",
         variant: "destructive",
       });
       return false;
@@ -54,7 +50,7 @@ export function useLoginForm() {
     setErrorMessage(null);
     
     try {
-      console.log(`Login attempt - Method: ${loginMethod}, Identifier: ${identifier}`);
+      console.log(`Login attempt - Email: ${identifier}`);
       
       // Intentar iniciar sesión
       const result = await signIn(identifier, password);
@@ -66,38 +62,20 @@ export function useLoginForm() {
         return;
       }
       
-      // Verificar si el usuario necesita verificación
-      if (result.needsVerification && result.email) {
-        console.log('User needs verification');
-        setEmailForVerification(result.email);
-        if (result.userId) {
-          setUserIdForVerification(result.userId);
-        }
-        setShowVerification(true);
-        setIsLoading(false);
-        return;
+      // Siempre mostrar el modal de verificación después de un inicio de sesión exitoso
+      console.log('Login successful, showing verification modal');
+      setEmailForVerification(identifier);
+      if (result.userId) {
+        setUserIdForVerification(result.userId);
       }
-      
-      // Si todo salió bien, mostrar toast y redirigir
-      toast({
-        title: "Inicio de sesión exitoso",
-        description: "¡Bienvenido de nuevo!",
-      });
-      
-      // Redirigir al dashboard
-      navigate('/dashboard');
+      setShowVerification(true);
+      setIsLoading(false);
       
     } catch (error: any) {
       console.error('Login error:', error);
       setErrorMessage(error.message || 'Ocurrió un error durante el inicio de sesión');
-    } finally {
       setIsLoading(false);
     }
-  };
-  
-  const toggleLoginMethod = () => {
-    setLoginMethod(prev => prev === 'phone' ? 'email' : 'phone');
-    setIdentifier('');
   };
   
   return {
@@ -111,10 +89,6 @@ export function useLoginForm() {
     setShowVerification,
     emailForVerification,
     userIdForVerification,
-    loginMethod,
-    countryCode,
-    setCountryCode,
-    handleSubmit,
-    toggleLoginMethod
+    handleSubmit
   };
 }

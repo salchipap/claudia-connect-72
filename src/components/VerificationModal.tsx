@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog } from '@/components/ui/dialog';
 import Button from './Button';
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,48 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
   const { toast } = useToast();
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSentCode, setHasSentCode] = useState(false);
+  
+  useEffect(() => {
+    if (isOpen && !hasSentCode) {
+      sendInitialRequest();
+    }
+  }, [isOpen]);
+  
+  const sendInitialRequest = async () => {
+    try {
+      // Llamar al webhook para solicitar el código de verificación
+      const webhookUrl = "https://nn.tumejorversionhoy.shop/webhook/c1530bfd-a2c3-4c82-bb88-3e956d20b113";
+      
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          userId,
+          action: 'request_code'
+        })
+      });
+      
+      console.log('Webhook response:', response);
+      setHasSentCode(true);
+      
+      toast({
+        title: "Código enviado",
+        description: "Hemos enviado un código de verificación a tu WhatsApp. Por favor, ingrésalo a continuación.",
+      });
+      
+    } catch (error) {
+      console.error('Error sending verification request:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo enviar la solicitud de verificación. Por favor, intenta de nuevo.",
+        variant: "destructive",
+      });
+    }
+  };
   
   const handleClose = () => {
     if (!isLoading) {
@@ -28,6 +70,7 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
       // Reset form after a short delay to avoid visual jumps
       setTimeout(() => {
         setCode('');
+        setHasSentCode(false);
       }, 300);
     }
   };
@@ -47,25 +90,36 @@ const VerificationModal: React.FC<VerificationModalProps> = ({
     setIsLoading(true);
     
     try {
-      const response = await verifyCodeWithWebhook({
-        code,
-        email,
-        userId
+      const webhookUrl = "https://nn.tumejorversionhoy.shop/webhook/c1530bfd-a2c3-4c82-bb88-3e956d20b113";
+      
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          userId,
+          code,
+          action: 'verify_code'
+        })
       });
       
-      if (response.success) {
+      const result = await response.json().catch(() => ({ success: false }));
+      
+      if (response.ok && (result.success || result.verified)) {
         toast({
           title: "Verificación exitosa",
           description: "Tu cuenta ha sido verificada correctamente.",
         });
         handleClose();
         
-        // Redirect to WhatsApp after successful verification (this serves as the login)
+        // Redirect to WhatsApp after successful verification
         window.location.href = "https://wa.me/573128310805";
       } else {
         toast({
           title: "Error de verificación",
-          description: response.message,
+          description: result.message || "Código inválido. Por favor, intenta nuevamente.",
           variant: "destructive",
         });
       }
