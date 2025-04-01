@@ -63,6 +63,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.error('Error signing up:', result.error);
       } else {
         console.log('Successfully signed up user:', result.data.user);
+        
+        // If the signup was successful and we have a user ID, try to create the user in our custom table as well
+        if (result.data.user && result.data.user.id && metadata) {
+          try {
+            const { error: insertError } = await supabase
+              .from('users')
+              .insert([
+                { 
+                  id: result.data.user.id, 
+                  email: email,
+                  name: metadata.name,
+                  lastname: metadata.lastname,
+                  remotejid: metadata.remotejid,
+                  status: 'pending',
+                  type_user: 'regular',
+                  credits: '0'
+                }
+              ]);
+              
+            if (insertError) {
+              console.error('Error inserting user profile:', insertError);
+            } else {
+              console.log('Successfully created user profile in users table');
+            }
+          } catch (insertErr) {
+            console.error('Exception during user profile creation:', insertErr);
+          }
+        }
       }
       
       return { data: result.data, error: result.error };

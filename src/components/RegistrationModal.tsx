@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import { Dialog } from '@/components/ui/dialog';
 import { useToast } from "@/hooks/use-toast";
-import { registerUserWithWebhook } from '@/utils/api';
 import VerificationModal from './VerificationModal';
 import RegistrationForm, { RegistrationFormData } from './forms/RegistrationForm';
+import { useAuth } from '@/hooks/useAuth';
 
 type RegistrationModalProps = {
   isOpen: boolean;
@@ -18,6 +18,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
   selectedPlan = ''
 }) => {
   const { toast } = useToast();
+  const { signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   const [userEmail, setUserEmail] = useState('');
@@ -38,32 +39,47 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
       // Format phone number with WhatsApp format for remotejid
       const formattedPhone = fullPhoneNumber.startsWith('+') ? fullPhoneNumber.substring(1) : fullPhoneNumber;
       
-      const response = await registerUserWithWebhook({
+      console.log('Registering user with Supabase:', {
+        email: formData.email,
         name: formData.name,
         lastname: formData.lastname,
-        email: formData.email,
-        remotejid: formattedPhone,
-        password: formData.password,
+        remotejid: formattedPhone
       });
       
-      if (response.success) {
-        toast({
-          title: "Registro exitoso",
-          description: "Por favor verifica tu código.",
-        });
-        // Store email for verification modal
-        setUserEmail(formData.email);
-        // Close the registration modal
-        handleClose();
-        // Open the verification modal
-        setIsVerificationModalOpen(true);
-      } else {
+      // Register with Supabase Auth
+      const { data, error } = await signUp(formData.email, formData.password, {
+        name: formData.name,
+        lastname: formData.lastname,
+        remotejid: formattedPhone,
+        plan: selectedPlan || 'Basic'
+      });
+      
+      if (error) {
+        console.error('Supabase registration error:', error);
         toast({
           title: "Error en el registro",
-          description: response.message || "Hubo un problema al registrar tu cuenta.",
+          description: error.message || "Hubo un problema al registrar tu cuenta.",
           variant: "destructive",
         });
+        return;
       }
+      
+      console.log('Supabase registration success:', data);
+      
+      // Store email for verification modal
+      setUserEmail(formData.email);
+      // Close the registration modal
+      handleClose();
+      
+      // Show success toast
+      toast({
+        title: "Registro exitoso",
+        description: "Por favor revisa tu correo para confirmar tu cuenta.",
+      });
+      
+      // Optionally, open verification modal if needed
+      // setIsVerificationModalOpen(true);
+      
     } catch (error: any) {
       console.error('Registration error:', error);
       toast({
