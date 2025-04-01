@@ -30,22 +30,71 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Función para obtener el perfil de usuario desde la tabla users
   const fetchUserProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      console.log('Buscando perfil de usuario con ID:', userId);
+      
+      // Primero intentamos con el ID de usuario
+      let { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
       
       if (error) {
-        console.error('Error fetching user profile:', error);
+        console.error('Error al buscar perfil de usuario por ID:', error);
         return null;
       }
       
-      console.log('User profile fetched successfully:', data);
-      setUserProfile(data);
-      return data;
+      // Si no encontramos el perfil por ID, buscamos por email
+      if (!data && user?.email) {
+        console.log('Perfil no encontrado por ID, buscando por email:', user.email);
+        
+        const { data: emailData, error: emailError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', user.email)
+          .maybeSingle();
+          
+        if (emailError) {
+          console.error('Error al buscar perfil de usuario por email:', emailError);
+          return null;
+        }
+        
+        data = emailData;
+      }
+      
+      // Si no encontramos el perfil por ID ni por email, buscamos por remotejid (teléfono)
+      // Verificamos si el email tiene el formato de teléfono: XXXXX@claudia.ai
+      if (!data && user?.email) {
+        const emailParts = user.email.split('@');
+        if (emailParts.length === 2 && emailParts[1] === 'claudia.ai') {
+          const phone = emailParts[0]; // Esto sería el número de teléfono
+          console.log('Perfil no encontrado por email, buscando por remotejid (teléfono):', phone);
+          
+          const { data: phoneData, error: phoneError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('remotejid', phone)
+            .maybeSingle();
+            
+          if (phoneError) {
+            console.error('Error al buscar perfil de usuario por remotejid:', phoneError);
+            return null;
+          }
+          
+          data = phoneData;
+        }
+      }
+      
+      if (data) {
+        console.log('Perfil de usuario encontrado:', data);
+        setUserProfile(data);
+        return data;
+      } else {
+        console.log('No se encontró perfil de usuario');
+        return null;
+      }
     } catch (error) {
-      console.error('Exception during user profile fetch:', error);
+      console.error('Excepción durante la búsqueda del perfil de usuario:', error);
       return null;
     }
   };
@@ -113,7 +162,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         password,
         options: {
           data: metadata,
-          // Set emailRedirectTo to the current URL for better UX if email confirmation is enabled
+          // Configuramos no requerir confirmación de email
           emailRedirectTo: window.location.origin + '/login',
         }
       });
@@ -137,7 +186,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   name: metadata.name,
                   lastname: metadata.lastname,
                   remotejid: metadata.remotejid,
-                  status: 'active', // Changed from 'pending' to 'active' since we don't require email confirmation
+                  status: 'active', // Cambiamos a 'active' para que pueda iniciar sesión inmediatamente
                   type_user: 'regular',
                   credits: '0'
                 }
@@ -163,7 +212,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('Signing in with email:', email);
+      console.log('Iniciando sesión con:', email);
       const result = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -181,14 +230,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const userProfileData = await fetchUserProfile(result.data.user.id);
           
           if (!userProfileData) {
-            console.warn('User exists in auth but not in users table, creating profile...');
+            console.warn('Usuario existe en auth pero no en users table, creando perfil...');
             // Intentar crear el perfil si no existe
             try {
+              // Verificar si el email es un número de teléfono formateado
+              let remotejid = null;
+              if (email.includes('@claudia.ai')) {
+                remotejid = email.split('@')[0];
+              }
+              
               const { error: insertError } = await supabase
                 .from('users')
                 .insert([{ 
                   id: result.data.user.id, 
                   email: email,
+                  remotejid: remotejid,
                   status: 'active',
                   type_user: 'regular',
                   credits: '0'

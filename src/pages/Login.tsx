@@ -4,17 +4,20 @@ import NavBar from '@/components/NavBar';
 import { useToast } from "@/hooks/use-toast";
 import Button from '@/components/Button';
 import { useNavigate, Link } from 'react-router-dom';
-import { Lock, Mail } from 'lucide-react';
+import { Lock, Mail, Phone } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import CountrySelect from '@/components/CountrySelect';
 
 const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, userProfile, signIn, loading: authLoading } = useAuth();
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loginMethod, setLoginMethod] = useState<'phone' | 'email'>('phone');
+  const [countryCode, setCountryCode] = useState('+57');
 
   useEffect(() => {
     // Redirect if user is already logged in
@@ -26,10 +29,10 @@ const Login = () => {
   const validateForm = () => {
     setErrorMessage(null);
     
-    if (!email.trim()) {
+    if (!identifier.trim()) {
       toast({
         title: "Error",
-        description: "Por favor ingresa tu email.",
+        description: `Por favor ingresa tu ${loginMethod === 'phone' ? 'teléfono' : 'email'}.`,
         variant: "destructive",
       });
       return false;
@@ -56,7 +59,24 @@ const Login = () => {
     setErrorMessage(null);
     
     try {
-      console.log('Intentando login con Supabase');
+      let email = identifier;
+      
+      // Si es teléfono, formateamos para convertirlo en email
+      if (loginMethod === 'phone') {
+        // Combine country code and phone number
+        const fullPhoneNumber = `${countryCode}${identifier}`;
+        
+        // Format phone number with WhatsApp format
+        const formattedPhone = fullPhoneNumber.startsWith('+') ? fullPhoneNumber.substring(1) : fullPhoneNumber;
+        
+        // Convertir a email para Supabase (usando el formato del teléfono como usuario)
+        email = `${formattedPhone}@claudia.ai`;
+        
+        console.log('Intentando login con teléfono como email:', email);
+      } else {
+        console.log('Intentando login con email:', email);
+      }
+      
       const { data, error } = await signIn(email, password);
       
       if (error) {
@@ -78,7 +98,7 @@ const Login = () => {
       // Manejar errores específicos de Supabase
       if (error.message) {
         if (error.message.includes("Invalid login credentials")) {
-          errorMsg = "Credenciales inválidas. Verifica tu email y contraseña.";
+          errorMsg = "Credenciales inválidas. Verifica tu email/teléfono y contraseña.";
         } else {
           errorMsg = error.message;
         }
@@ -94,6 +114,11 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+  
+  const toggleLoginMethod = () => {
+    setLoginMethod(prev => prev === 'phone' ? 'email' : 'phone');
+    setIdentifier('');
   };
   
   if (authLoading) {
@@ -120,6 +145,16 @@ const Login = () => {
             <div className="absolute top-0 right-0 w-40 h-40 bg-claudia-primary opacity-10 rounded-bl-full -z-10"></div>
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-claudia-primary opacity-10 rounded-tr-full -z-10"></div>
             
+            <div className="text-center mb-4">
+              <button 
+                onClick={toggleLoginMethod}
+                className="text-claudia-primary text-sm underline hover:text-claudia-primary/80"
+                type="button"
+              >
+                ¿Prefieres iniciar sesión con {loginMethod === 'phone' ? 'correo electrónico' : 'teléfono'}?
+              </button>
+            </div>
+            
             {errorMessage && (
               <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-md text-red-200 text-sm">
                 <p>{errorMessage}</p>
@@ -128,21 +163,44 @@ const Login = () => {
             
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Email o Teléfono
+                <label htmlFor="identifier" className="block text-sm font-medium mb-1 text-claudia-white">
+                  {loginMethod === 'phone' ? 'Número de WhatsApp' : 'Correo Electrónico'}
                 </label>
-                <div className="relative">
-                  <input
-                    id="email"
-                    type="text"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="email@ejemplo.com o 573128310805"
-                    disabled={isLoading}
-                  />
-                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
-                </div>
+                
+                {loginMethod === 'phone' ? (
+                  <div className="flex gap-2">
+                    <CountrySelect 
+                      value={countryCode}
+                      onChange={setCountryCode}
+                      disabled={isLoading}
+                    />
+                    <div className="relative flex-1">
+                      <input
+                        id="identifier"
+                        type="text"
+                        value={identifier}
+                        onChange={(e) => setIdentifier(e.target.value)}
+                        className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
+                        placeholder="3128310805"
+                        disabled={isLoading}
+                      />
+                      <Phone className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <input
+                      id="identifier"
+                      type="text"
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
+                      placeholder="correo@ejemplo.com"
+                      disabled={isLoading}
+                    />
+                    <Mail className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
+                  </div>
+                )}
               </div>
               
               <div>

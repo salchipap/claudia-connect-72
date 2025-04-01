@@ -3,13 +3,12 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import Button from './Button';
 import { useToast } from "@/hooks/use-toast";
-import { loginUser } from '@/utils/api';
 import { Input } from '@/components/ui/input';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { Lock, Phone } from 'lucide-react';
+import { Lock, Phone, Mail } from 'lucide-react';
 import CountrySelect from '@/components/CountrySelect';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,7 +19,7 @@ type LoginModalProps = {
 };
 
 const loginSchema = z.object({
-  phoneNumber: z.string().min(6, 'El número de teléfono debe tener al menos 6 dígitos'),
+  identifier: z.string().min(1, 'Este campo es requerido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres')
 });
 
@@ -33,13 +32,14 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [countryCode, setCountryCode] = useState('+57');
+  const [loginMethod, setLoginMethod] = useState<'phone' | 'email'>('phone');
   const navigate = useNavigate();
   const { signIn } = useAuth();
   
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      phoneNumber: '',
+      identifier: '',
       password: ''
     }
   });
@@ -55,73 +55,71 @@ const LoginModal: React.FC<LoginModalProps> = ({
     setIsLoading(true);
     
     try {
-      // Combine country code and phone number
-      const fullPhoneNumber = `${countryCode}${values.phoneNumber}`;
+      let email = values.identifier;
       
-      // Format phone number with WhatsApp format
-      const formattedPhone = fullPhoneNumber.startsWith('+') ? fullPhoneNumber.substring(1) : fullPhoneNumber;
+      // Si es teléfono, formateamos para convertirlo en email
+      if (loginMethod === 'phone') {
+        // Combine country code and phone number
+        const fullPhoneNumber = `${countryCode}${values.identifier}`;
+        
+        // Format phone number with WhatsApp format
+        const formattedPhone = fullPhoneNumber.startsWith('+') ? fullPhoneNumber.substring(1) : fullPhoneNumber;
+        
+        // Convertir a email para Supabase (usando el formato del teléfono como usuario)
+        email = `${formattedPhone}@claudia.ai`;
+        
+        console.log('Intentando login con teléfono como email:', email);
+      } else {
+        console.log('Intentando login con email:', email);
+      }
       
-      try {
-        console.log('Intentando login a través de webhook');
-        const response = await loginUser({
-          phone: formattedPhone,
-          password: values.password
+      // Autenticación directa con Supabase
+      const { data, error } = await signIn(email, values.password);
+      
+      if (error) {
+        console.error('Error en autenticación con Supabase:', error);
+        throw error;
+      }
+      
+      if (data.session) {
+        console.log('Inicio de sesión exitoso:', data);
+        toast({
+          title: "Inicio de sesión exitoso",
+          description: "Bienvenido a ClaudIA.",
         });
         
-        if (response.success) {
-          toast({
-            title: "Inicio de sesión exitoso",
-            description: "Bienvenido a ClaudIA.",
-          });
-          handleClose();
-          
-          // Redirect to WhatsApp after successful login
-          window.location.href = "https://wa.me/573128310805";
-          return;
-        }
-      } catch (webhookError) {
-        console.log('Error en webhook, intentando autenticación con Supabase:', webhookError);
-        // Si falla el webhook, intentamos con Supabase
-        try {
-          // Usar email como nombre de usuario para Supabase - concatenar el número con @claudia.ai
-          const email = `${formattedPhone}@claudia.ai`;
-          const { data, error } = await signIn(email, values.password);
-          
-          if (error) {
-            throw error;
-          }
-          
-          toast({
-            title: "Inicio de sesión exitoso",
-            description: "Bienvenido a ClaudIA.",
-          });
-          
-          handleClose();
-          navigate('/dashboard');
-          return;
-        } catch (supabaseError: any) {
-          console.error('Error en autenticación con Supabase:', supabaseError);
-          throw supabaseError;
+        handleClose();
+        navigate('/dashboard');
+      } else {
+        throw new Error('No se pudo iniciar sesión, no se obtuvo la sesión');
+      }
+    } catch (error: any) {
+      console.error('Error logging in:', error);
+      
+      // Mensaje de error más amigable basado en el código de error
+      let errorMessage = "Credenciales inválidas o servicio no disponible.";
+      
+      if (error?.message) {
+        if (error.message.includes("Invalid login credentials")) {
+          errorMessage = "Credenciales inválidas. Verifica tu email/teléfono y contraseña.";
+        } else {
+          errorMessage = error.message;
         }
       }
       
-      // Si llegamos aquí es porque ambos métodos fallaron pero no hubo excepción
-      toast({
-        title: "Error en el inicio de sesión",
-        description: "Credenciales inválidas o servicio no disponible.",
-        variant: "destructive",
-      });
-      
-    } catch (error: any) {
-      console.error('Error logging in:', error);
       toast({
         title: "Error",
-        description: error.message || "Ocurrió un error durante el inicio de sesión. Por favor, intenta de nuevo.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const toggleLoginMethod = () => {
+    setLoginMethod(prev => prev === 'phone' ? 'email' : 'phone');
+    form.setValue('identifier', '');
   };
 
   return (
@@ -134,34 +132,63 @@ const LoginModal: React.FC<LoginModalProps> = ({
           
           <div className="p-6">
             <DialogTitle className="text-2xl font-bold mb-1 text-claudia-white">Iniciar Sesión</DialogTitle>
-            <DialogDescription className="text-claudia-white/70 mb-6">Ingresa con tu número de WhatsApp y contraseña</DialogDescription>
+            <DialogDescription className="text-claudia-white/70 mb-6">
+              Ingresa con tu {loginMethod === 'phone' ? 'número de WhatsApp' : 'correo electrónico'} y contraseña
+            </DialogDescription>
+            
+            <div className="text-center mb-4">
+              <button 
+                onClick={toggleLoginMethod}
+                className="text-claudia-primary text-sm underline hover:text-claudia-primary/80"
+                type="button"
+              >
+                ¿Prefieres iniciar sesión con {loginMethod === 'phone' ? 'correo electrónico' : 'teléfono'}?
+              </button>
+            </div>
             
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="phoneNumber"
+                  name="identifier"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-claudia-white">Número de WhatsApp</FormLabel>
-                      <div className="flex gap-2">
-                        <CountrySelect 
-                          value={countryCode}
-                          onChange={setCountryCode}
-                          disabled={isLoading}
-                        />
-                        <div className="relative flex-1">
+                      <FormLabel className="text-claudia-white">
+                        {loginMethod === 'phone' ? 'Número de WhatsApp' : 'Correo Electrónico'}
+                      </FormLabel>
+                      
+                      {loginMethod === 'phone' ? (
+                        <div className="flex gap-2">
+                          <CountrySelect 
+                            value={countryCode}
+                            onChange={setCountryCode}
+                            disabled={isLoading}
+                          />
+                          <div className="relative flex-1">
+                            <FormControl>
+                              <Input
+                                placeholder="3128310805"
+                                className="pl-9 bg-[#1a2a30] border-claudia-primary/30 text-claudia-white"
+                                disabled={isLoading}
+                                {...field}
+                              />
+                            </FormControl>
+                            <Phone className="absolute left-3 top-3 h-4 w-4 text-claudia-primary/70" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="relative">
                           <FormControl>
                             <Input
-                              placeholder="3128310805"
+                              placeholder="correo@ejemplo.com"
                               className="pl-9 bg-[#1a2a30] border-claudia-primary/30 text-claudia-white"
                               disabled={isLoading}
                               {...field}
                             />
                           </FormControl>
-                          <Phone className="absolute left-3 top-3 h-4 w-4 text-claudia-primary/70" />
+                          <Mail className="absolute left-3 top-3 h-4 w-4 text-claudia-primary/70" />
                         </div>
-                      </div>
+                      )}
                       <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
