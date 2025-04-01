@@ -12,7 +12,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 
 const Dashboard = () => {
   const { user, userProfile, signOut, loading } = useAuth();
@@ -62,8 +62,8 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#142126] text-claudia-foreground relative">
-      <main className="pt-8 pb-12 px-6">
-        <div className="max-w-4xl mx-auto">
+      <main className="pt-8 pb-12 px-4 md:px-6">
+        <div className="max-w-5xl mx-auto">
           <div className="mb-8 flex justify-between items-center">
             <h1 className="text-3xl md:text-4xl font-bold text-claudia-white">Dashboard</h1>
             
@@ -130,9 +130,9 @@ const Dashboard = () => {
             </Popover>
           </div>
           
-          <div className="grid grid-cols-1 gap-6">
+          <Card className="border-claudia-primary/10 shadow-lg overflow-hidden">
             <ReminderCalendar />
-          </div>
+          </Card>
         </div>
       </main>
     </div>
