@@ -19,7 +19,7 @@ export interface UserProfile {
   status?: string;
   last_message?: string;
   credits?: string;
-  reminders?: string;
+  reminders?: string;  // Agregamos esta propiedad que corresponde a la columna en la base de datos
   type_user?: string;
 }
 
