@@ -1,19 +1,19 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import { useToast } from "@/hooks/use-toast";
-import { registerUserWithWebhook } from '@/utils/api';
-import VerificationModal from '@/components/VerificationModal';
 import Button from '@/components/Button';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Lock, Mail, Phone, User } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import CountrySelect from '@/components/CountrySelect';
+import { useAuth } from '@/hooks/useAuth';
 
 const Registration = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user, signUp, loading: authLoading } = useAuth();
   const [name, setName] = useState('');
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
@@ -23,13 +23,25 @@ const Registration = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState('');
+
+  useEffect(() => {
+    // Check for selected plan from location state
+    if (location.state && location.state.selectedPlan) {
+      setSelectedPlan(location.state.selectedPlan);
+    }
+    
+    // Redirect if user is already logged in
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [location, navigate, user]);
   
   const validateForm = () => {
     if (!name.trim()) {
       toast({
         title: "Error",
-        description: "Por favor, ingresa tu nombre.",
+        description: "Please enter your name.",
         variant: "destructive",
       });
       return false;
@@ -38,7 +50,7 @@ const Registration = () => {
     if (!lastname.trim()) {
       toast({
         title: "Error",
-        description: "Por favor, ingresa tu apellido.",
+        description: "Please enter your last name.",
         variant: "destructive",
       });
       return false;
@@ -48,7 +60,7 @@ const Registration = () => {
     if (!emailRegex.test(email)) {
       toast({
         title: "Error",
-        description: "Por favor, ingresa un correo electrónico válido.",
+        description: "Please enter a valid email address.",
         variant: "destructive",
       });
       return false;
@@ -59,7 +71,7 @@ const Registration = () => {
     if (!phoneRegex.test(phoneNumber.replace(/\D/g, ''))) {
       toast({
         title: "Error",
-        description: "Por favor, ingresa un número de teléfono válido (solo números).",
+        description: "Please enter a valid phone number (numbers only).",
         variant: "destructive",
       });
       return false;
@@ -68,7 +80,7 @@ const Registration = () => {
     if (password.length < 6) {
       toast({
         title: "Error",
-        description: "La contraseña debe tener al menos 6 caracteres.",
+        description: "Password must be at least 6 characters long.",
         variant: "destructive",
       });
       return false;
@@ -77,7 +89,7 @@ const Registration = () => {
     if (password !== confirmPassword) {
       toast({
         title: "Error",
-        description: "Las contraseñas no coinciden.",
+        description: "Passwords do not match.",
         variant: "destructive",
       });
       return false;
@@ -86,7 +98,7 @@ const Registration = () => {
     if (!acceptedTerms) {
       toast({
         title: "Error",
-        description: "Debes aceptar los términos y condiciones para continuar.",
+        description: "You must accept the terms and conditions to continue.",
         variant: "destructive",
       });
       return false;
@@ -105,42 +117,46 @@ const Registration = () => {
     try {
       // Combine country code and phone number
       const fullPhoneNumber = `${countryCode}${phoneNumber}`;
-      // Format phone number with WhatsApp format for remotejid
-      const formattedPhone = fullPhoneNumber.startsWith('+') ? fullPhoneNumber.substring(1) : fullPhoneNumber;
       
-      const response = await registerUserWithWebhook({
+      // Register with Supabase Auth
+      const { data, error } = await signUp(email, password, {
         name,
         lastname,
-        email,
-        remotejid: formattedPhone,
-        password,
+        remotejid: fullPhoneNumber,
+        plan: selectedPlan || 'Basic'
       });
       
-      if (response.success) {
-        toast({
-          title: "Registro exitoso",
-          description: "Por favor verifica tu código.",
-        });
-        // Open the verification modal after successful registration
-        setIsVerificationModalOpen(true);
-      } else {
-        toast({
-          title: "Error en el registro",
-          description: response.message,
-          variant: "destructive",
-        });
+      if (error) {
+        throw error;
       }
-    } catch (error) {
+      
+      // Success message
+      toast({
+        title: "Registration successful",
+        description: "Please check your email to confirm your account.",
+      });
+      
+      // Navigate to dashboard (auth state will handle redirects if email confirmation is required)
+      navigate('/dashboard');
+    } catch (error: any) {
       console.error('Registration error:', error);
       toast({
-        title: "Error",
-        description: "Ocurrió un error durante el registro. Por favor, intenta de nuevo.",
+        title: "Registration error",
+        description: error.message || "An error occurred during registration. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
+  
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#142126] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-claudia-primary"></div>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen bg-[#142126] text-claudia-foreground relative">
@@ -149,8 +165,11 @@ const Registration = () => {
       <main className="pt-20 pb-12 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-claudia-white">Registro en ClaudIA</h1>
-            <p className="text-claudia-white/70 text-lg">Completa el formulario para comenzar tu experiencia con ClaudIA</p>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-claudia-white">Register for ClaudIA</h1>
+            <p className="text-claudia-white/70 text-lg">Complete the form to start your ClaudIA experience</p>
+            {selectedPlan && (
+              <p className="text-claudia-primary mt-2">Selected plan: {selectedPlan}</p>
+            )}
           </div>
           
           <div className="max-w-md mx-auto bg-[#1a2a30] rounded-lg shadow-xl p-8 relative overflow-hidden">
@@ -161,7 +180,7 @@ const Registration = () => {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Nombre
+                  Name
                 </label>
                 <div className="relative">
                   <input
@@ -170,7 +189,7 @@ const Registration = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="Tu nombre"
+                    placeholder="Your name"
                     disabled={isLoading}
                   />
                   <User className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
@@ -179,7 +198,7 @@ const Registration = () => {
               
               <div>
                 <label htmlFor="lastname" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Apellido
+                  Last Name
                 </label>
                 <div className="relative">
                   <input
@@ -188,7 +207,7 @@ const Registration = () => {
                     value={lastname}
                     onChange={(e) => setLastname(e.target.value)}
                     className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="Tu apellido"
+                    placeholder="Your last name"
                     disabled={isLoading}
                   />
                   <User className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
@@ -197,7 +216,7 @@ const Registration = () => {
               
               <div>
                 <label htmlFor="email" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Correo electrónico
+                  Email
                 </label>
                 <div className="relative">
                   <input
@@ -206,7 +225,7 @@ const Registration = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="nombre@ejemplo.com"
+                    placeholder="name@example.com"
                     disabled={isLoading}
                   />
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
@@ -215,7 +234,7 @@ const Registration = () => {
               
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Número de teléfono (WhatsApp)
+                  Phone Number (WhatsApp)
                 </label>
                 <div className="flex gap-2">
                   <CountrySelect 
@@ -240,7 +259,7 @@ const Registration = () => {
               
               <div>
                 <label htmlFor="password" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Contraseña
+                  Password
                 </label>
                 <div className="relative">
                   <input
@@ -249,7 +268,7 @@ const Registration = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="Mínimo 6 caracteres"
+                    placeholder="Minimum 6 characters"
                     disabled={isLoading}
                   />
                   <Lock className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
@@ -258,7 +277,7 @@ const Registration = () => {
               
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Confirmar Contraseña
+                  Confirm Password
                 </label>
                 <div className="relative">
                   <input
@@ -267,7 +286,7 @@ const Registration = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="Confirma tu contraseña"
+                    placeholder="Confirm your password"
                     disabled={isLoading}
                   />
                   <Lock className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
@@ -285,7 +304,7 @@ const Registration = () => {
                   htmlFor="terms"
                   className="text-sm text-claudia-white/80"
                 >
-                  Acepto los <Link to="/terms" className="text-claudia-primary hover:underline">Términos y Condiciones</Link> de ClaudIA
+                  I accept the <Link to="/terms" className="text-claudia-primary hover:underline">Terms and Conditions</Link> of ClaudIA
                 </label>
               </div>
               
@@ -296,22 +315,24 @@ const Registration = () => {
                   loading={isLoading}
                   className="w-full"
                 >
-                  Registrarme
+                  Register
                 </Button>
+              </div>
+              
+              <div className="text-center mt-4 text-claudia-white/70 text-sm">
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  className="text-claudia-primary hover:underline"
+                  onClick={() => navigate('/login')}
+                >
+                  Log in
+                </button>
               </div>
             </form>
           </div>
         </div>
       </main>
-      
-      {/* Verification Modal - Only shown after successful registration */}
-      {isVerificationModalOpen && (
-        <VerificationModal
-          isOpen={isVerificationModalOpen}
-          onClose={() => setIsVerificationModalOpen(false)}
-          email={email}
-        />
-      )}
     </div>
   );
 };

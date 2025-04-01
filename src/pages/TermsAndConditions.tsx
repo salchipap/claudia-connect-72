@@ -40,10 +40,58 @@ const TermsAndConditions = () => {
               laws of both the Colombia and foreign countries.
             </p>
             
-            <h2 className="text-xl font-semibold mt-6 mb-3 text-claudia-primary">5. Data Usage</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3 text-claudia-primary">5. Data Processing and Privacy</h2>
             <p>
-              We collect and process personal data as described in our Privacy Policy. By using ClaudIA, you 
-              consent to such processing and you warrant that all data provided by you is accurate.
+              ClaudIA collects and processes personal data as described in our Privacy Policy. By using our 
+              service, you acknowledge and consent to the processing of your personal data in accordance with 
+              our Privacy Policy.
+            </p>
+            
+            <h3 className="text-lg font-semibold mt-4 mb-2 text-claudia-primary/90">5.1 Data Collection</h3>
+            <p>
+              We collect various types of personal data including but not limited to: name, email address, phone number, 
+              and any data you provide when creating reminders or other content within our service.
+            </p>
+            
+            <h3 className="text-lg font-semibold mt-4 mb-2 text-claudia-primary/90">5.2 Data Usage</h3>
+            <p>
+              The data we collect is used for:
+            </p>
+            <ul className="list-disc pl-5 mt-2 mb-4 space-y-1">
+              <li>Providing and maintaining our service</li>
+              <li>Notifying you about changes to our service</li>
+              <li>Providing customer support</li>
+              <li>Gathering analysis to improve our service</li>
+              <li>Monitoring the usage of our service</li>
+              <li>Detecting, preventing, and addressing technical issues</li>
+            </ul>
+            
+            <h3 className="text-lg font-semibold mt-4 mb-2 text-claudia-primary/90">5.3 Data Sharing</h3>
+            <p>
+              We may share your personal data with:
+            </p>
+            <ul className="list-disc pl-5 mt-2 mb-4 space-y-1">
+              <li>Service providers to monitor and analyze the use of our service</li>
+              <li>Business partners to offer you certain products, services or promotions</li>
+              <li>Affiliates to provide you with our services</li>
+              <li>Other users when you share information through our service</li>
+              <li>Law enforcement agencies when required by law</li>
+            </ul>
+            
+            <h3 className="text-lg font-semibold mt-4 mb-2 text-claudia-primary/90">5.4 Data Storage Period</h3>
+            <p>
+              We will retain your personal data only for as long as is necessary for the purposes set out in 
+              these Terms and our Privacy Policy. We will retain and use your personal data to the extent 
+              necessary to comply with our legal obligations, resolve disputes, and enforce our legal agreements 
+              and policies.
+            </p>
+            
+            <h3 className="text-lg font-semibold mt-4 mb-2 text-claudia-primary/90">5.5 Data Security</h3>
+            <p>
+              We value your trust in providing us with your personal data, and we are committed to using 
+              commercially acceptable means of protecting it. However, no method of transmission over the 
+              internet or method of electronic storage is 100% secure, and we cannot guarantee its absolute 
+              security.
             </p>
             
             <h2 className="text-xl font-semibold mt-6 mb-3 text-claudia-primary">6. Reminders and Notifications</h2>
@@ -61,11 +109,12 @@ const TermsAndConditions = () => {
               service at any time for maintenance or other reasons.
             </p>
             
-            <h2 className="text-xl font-semibold mt-6 mb-3 text-claudia-primary">8. Payments and Subscriptions</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3 text-claudia-primary">8. Subscription Model</h2>
             <p>
-              Some features of ClaudIA may require payment or subscription. By purchasing a subscription or tokens, 
-              you agree to pay the specified fees. We reserve the right to change our fees at any time. Continued 
-              use of the service after a fee change constitutes your acceptance of the new fees.
+              ClaudIA operates on a monthly subscription model. By subscribing to our service, you agree to pay 
+              the specified monthly fee. You may cancel your subscription at any time, but no refunds will be 
+              provided for the current billing period. We reserve the right to change our subscription fees at any time. 
+              Continued use of the service after a price change constitutes your acceptance of the new fees.
             </p>
             
             <h2 className="text-xl font-semibold mt-6 mb-3 text-claudia-primary">9. Limitation of Liability</h2>
