@@ -100,12 +100,14 @@ const LoginModalDialog: React.FC<LoginModalDialogProps> = ({ onClose }) => {
         </form>
       </DialogContent>
       
-      {/* Modal de verificación */}
-      <VerificationModal 
-        isOpen={showVerification} 
-        onClose={() => setShowVerification(false)}
-        email={emailForVerification}
-      />
+      {/* Modal de verificación - solo se muestra cuando showVerification es true */}
+      {showVerification && (
+        <VerificationModal 
+          isOpen={showVerification} 
+          onClose={() => setShowVerification(false)}
+          email={emailForVerification}
+        />
+      )}
     </>
   );
 };
