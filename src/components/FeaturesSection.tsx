@@ -28,14 +28,14 @@ const FeaturesSection: React.FC = () => {
     description: 'Interactúa de forma natural con respuestas claras, relevantes y personalizadas.'
   }];
   
-  return <section id="features" className="py-24 px-6 relative">
+  return <section id="features" className="py-16 md:py-24 px-4 md:px-6 relative">
       {/* Background accent */}
       <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-claudia-muted to-transparent opacity-70 -z-10"></div>
       
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold mb-4 text-slate-50 md:text-5xl">Potencia tu productividad</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 text-slate-50">Potencia tu productividad</h2>
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
             ClaudIA integra tecnologías avanzadas para ofrecerte soluciones inteligentes en distintos escenarios
           </p>
           <div className="mt-8">
@@ -49,7 +49,7 @@ const FeaturesSection: React.FC = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {features.map((feature, index) => <FeatureCard key={index} {...feature} delay={index * 100} />)}
         </div>
       </div>

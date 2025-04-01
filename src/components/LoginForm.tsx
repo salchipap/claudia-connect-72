@@ -23,7 +23,7 @@ const LoginForm = () => {
   } = useLoginForm();
 
   return (
-    <div className="max-w-md mx-auto bg-[#1a2a30] rounded-lg shadow-xl p-8 relative overflow-hidden">
+    <div className="w-full max-w-md mx-auto bg-[#1a2a30] rounded-lg shadow-xl p-5 sm:p-8 relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-0 right-0 w-40 h-40 bg-claudia-primary opacity-10 rounded-bl-full -z-10"></div>
       <div className="absolute bottom-0 left-0 w-32 h-32 bg-claudia-primary opacity-10 rounded-tr-full -z-10"></div>
@@ -35,7 +35,7 @@ const LoginForm = () => {
         </Alert>
       )}
       
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
         <div>
           <label htmlFor="identifier" className="block text-sm font-medium mb-1 text-claudia-white">
             Correo Electrónico

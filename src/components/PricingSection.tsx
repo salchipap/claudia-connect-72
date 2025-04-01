@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import PricingCard from './PricingCard';
 import { useNavigate } from 'react-router-dom';
-import { Check, FileText, Globe, Presentation, Search } from 'lucide-react';
+import { Check, FileText, Presentation, Search } from 'lucide-react';
 import { useCurrencyConversion } from '@/utils/currencyUtils';
 
 const PricingSection: React.FC = () => {
@@ -82,14 +82,14 @@ const PricingSection: React.FC = () => {
   ];
 
   return (
-    <section id="pricing" className="py-24 px-6 relative">
+    <section id="pricing" className="py-16 md:py-24 px-4 md:px-6 relative">
       {/* Background accent */}
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-claudia-muted to-transparent opacity-30 -z-10"></div>
       
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold mb-4 text-slate-50 md:text-5xl">Planes de Suscripción</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 text-slate-50">Planes de Suscripción</h2>
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
             Elige un plan mensual y obtén acceso a todas las funciones
           </p>
           {!loading && (
@@ -103,9 +103,9 @@ const PricingSection: React.FC = () => {
           {pricingTiers.map((tier, index) => <PricingCard key={index} tier={tier} delay={index * 150} />)}
         </div>
         
-        <div className="mt-16 bg-[#1a2a30] rounded-lg p-8 max-w-4xl mx-auto">
-          <h3 className="text-2xl font-bold mb-4 text-claudia-white">Todos los Planes Incluyen:</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mt-12 sm:mt-16 bg-[#1a2a30] rounded-lg p-6 sm:p-8 max-w-4xl mx-auto">
+          <h3 className="text-xl sm:text-2xl font-bold mb-4 text-claudia-white">Todos los Planes Incluyen:</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
               'Integración con WhatsApp',
               'Sincronización entre dispositivos',
