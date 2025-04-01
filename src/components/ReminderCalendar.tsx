@@ -119,7 +119,7 @@ const ReminderCalendar = () => {
     }
     
     // Verificar si el usuario tiene recordatorios disponibles
-    if (userProfile?.reminders && parseInt(userProfile.reminders) <= 0) {
+    if (!userProfile?.reminders || parseInt(userProfile.reminders) <= 0) {
       toast({
         title: "Sin recordatorios disponibles",
         description: "Has alcanzado el límite de recordatorios disponibles",
