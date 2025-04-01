@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import ReminderCalendar from '@/components/ReminderCalendar';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, UserCircle, Mail, Calendar, BreadSlice } from 'lucide-react';
+import { LogOut, UserCircle, Mail, Calendar, Pizza } from 'lucide-react';
 import Button from '@/components/Button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -103,7 +103,7 @@ const Dashboard = () => {
                 
                 <div className="p-3">
                   <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
-                    <BreadSlice size={18} className="text-claudia-primary" />
+                    <Pizza size={18} className="text-claudia-primary" />
                     <span>{userProfile.credits || '0'} panes disponibles</span>
                   </div>
                   
