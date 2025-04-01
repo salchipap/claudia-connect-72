@@ -120,7 +120,7 @@ const ReminderCalendar = () => {
         toast({
           title: "Advertencia",
           description: "No tienes un número de teléfono configurado. El recordatorio se guardará pero no podrá enviarse.",
-          variant: "warning",
+          variant: "default",
         });
         phoneNumber = 'sin-telefono';
       }

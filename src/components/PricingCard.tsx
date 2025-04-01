@@ -6,7 +6,10 @@ import { Check } from 'lucide-react';
 
 type PricingTier = {
   name: string;
-  price: string;
+  price: {
+    usd: string;
+    cop: string;
+  };
   description: string;
   features: string[];
   cta: string;
@@ -48,9 +51,9 @@ const PricingCard: React.FC<PricingCardProps> = ({
           {tier.icon}
           <h3 className="text-xl font-semibold text-slate-50">{tier.name}</h3>
         </div>
-        <div className="flex items-baseline">
-          <span className="text-3xl font-bold text-slate-200">{tier.price}</span>
-          {tier.price !== 'Gratis' && !tier.price.includes('Desde') && <span className="ml-1 text-muted-foreground">/mes</span>}
+        <div className="flex flex-col">
+          <span className="text-3xl font-bold text-slate-200">{tier.price.usd}<span className="text-base text-muted-foreground">/mes</span></span>
+          <span className="text-sm text-muted-foreground">{tier.price.cop}/mes</span>
         </div>
         <p className="mt-3 text-muted-foreground">
           {tier.description}

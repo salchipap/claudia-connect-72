@@ -1,11 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PricingCard from './PricingCard';
 import { useNavigate } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Check, FileText, Globe, Presentation, Search } from 'lucide-react';
+import { useCurrencyConversion } from '@/utils/currencyUtils';
 
 const PricingSection: React.FC = () => {
   const navigate = useNavigate();
+  const { exchangeRate, loading, convertUSDtoCOP } = useCurrencyConversion();
   
   const handlePricingClick = (planName: string) => {
     navigate('/register', {
@@ -15,21 +17,69 @@ const PricingSection: React.FC = () => {
     });
   };
   
-  const pricingTiers = [{
-    name: 'Basic',
-    price: '$4.99/month',
-    description: 'Perfect for personal use with essential features.',
-    features: ['100 daily reminders', 'Unlimited conversations', 'Basic AI assistance', 'WhatsApp integration', '24/7 customer support'],
-    cta: 'Get Started',
-    onClick: () => handlePricingClick('Basic')
-  }, {
-    name: 'Premium',
-    price: '$9.99/month',
-    description: 'Enhanced features for professionals and small businesses.',
-    features: ['Unlimited reminders', 'Priority AI assistance', 'Advanced analytics', 'Custom integrations', 'Priority customer support'],
-    cta: 'Choose Premium',
-    onClick: () => handlePricingClick('Premium')
-  }];
+  // Define base prices in USD
+  const basePrices = {
+    basic: 10,
+    advanced: 25,
+    premium: 50
+  };
+
+  // Convert prices to COP
+  const getPriceDisplay = (usdPrice: number) => {
+    const copPrice = convertUSDtoCOP(usdPrice);
+    return {
+      usd: `$${usdPrice}`,
+      cop: `COP ${Math.round(copPrice).toLocaleString('es-CO')}`
+    };
+  };
+  
+  const pricingTiers = [
+    {
+      name: 'Básico',
+      price: getPriceDisplay(basePrices.basic),
+      description: 'Plan ideal para uso personal con funciones esenciales.',
+      features: [
+        '333 recordatorios mensuales', 
+        'Investigación básica', 
+        'Búsqueda web',
+        'Funciones básicas'
+      ],
+      cta: 'Comenzar Ahora',
+      onClick: () => handlePricingClick('Basic'),
+      icon: <Search className="h-5 w-5 text-claudia-primary" />
+    }, 
+    {
+      name: 'Avanzado',
+      price: getPriceDisplay(basePrices.advanced),
+      description: 'Funciones mejoradas para profesionales y pequeñas empresas.',
+      features: [
+        '3333 recordatorios mensuales', 
+        'Investigación profunda en PDF', 
+        'Investigación de página web avanzada',
+        'Chat con tu PDF y generación de recordatorios',
+        'Generar trivias de conocimiento'
+      ],
+      cta: 'Elegir Avanzado',
+      onClick: () => handlePricingClick('Advanced'),
+      highlight: true,
+      icon: <FileText className="h-5 w-5 text-claudia-primary" />
+    },
+    {
+      name: 'Premium',
+      price: getPriceDisplay(basePrices.premium),
+      description: 'Plan completo con todas las funciones avanzadas y exclusivas.',
+      features: [
+        'Recordatorios ilimitados', 
+        'Investigación profunda en PDF', 
+        'Investigación de página web avanzada',
+        'Chat con tu PDF y generación de recordatorios',
+        'Generación de infografías y diapositivas'
+      ],
+      cta: 'Elegir Premium',
+      onClick: () => handlePricingClick('Premium'),
+      icon: <Presentation className="h-5 w-5 text-claudia-primary" />
+    }
+  ];
 
   return (
     <section id="pricing" className="py-24 px-6 relative">
@@ -38,26 +88,31 @@ const PricingSection: React.FC = () => {
       
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold mb-4 text-slate-50 md:text-5xl">Subscription Plans</h2>
+          <h2 className="text-3xl font-bold mb-4 text-slate-50 md:text-5xl">Planes de Suscripción</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Choose a monthly subscription plan and get access to all features
+            Elige un plan mensual y obtén acceso a todas las funciones
           </p>
+          {!loading && (
+            <p className="text-sm text-muted-foreground mt-2">
+              Tasa de cambio actual: 1 USD = {Math.round(exchangeRate).toLocaleString('es-CO')} COP
+            </p>
+          )}
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {pricingTiers.map((tier, index) => <PricingCard key={index} tier={tier} delay={index * 150} />)}
         </div>
         
         <div className="mt-16 bg-[#1a2a30] rounded-lg p-8 max-w-4xl mx-auto">
-          <h3 className="text-2xl font-bold mb-4 text-claudia-white">All Plans Include:</h3>
+          <h3 className="text-2xl font-bold mb-4 text-claudia-white">Todos los Planes Incluyen:</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
-              'Free WhatsApp Integration',
-              'Cross-Device Synchronization',
-              'Data Backup & Recovery',
-              'SSL Encryption',
-              'Regular Feature Updates',
-              'Technical Support'
+              'Integración con WhatsApp',
+              'Sincronización entre dispositivos',
+              'Respaldo y recuperación de datos',
+              'Encriptación SSL',
+              'Actualizaciones regulares',
+              'Soporte técnico'
             ].map((feature, index) => (
               <div key={index} className="flex items-center space-x-2">
                 <Check className="h-5 w-5 text-claudia-primary" />
@@ -68,7 +123,7 @@ const PricingSection: React.FC = () => {
           
           <div className="mt-8 p-4 bg-claudia-primary/10 rounded-lg border border-claudia-primary/20">
             <p className="text-claudia-white/90 text-center">
-              <strong>Special Offer:</strong> Sign up today and get your first month for 50% off!
+              <strong>Oferta Especial:</strong> ¡Regístrate hoy y obtén tu primer mes con 50% de descuento!
             </p>
           </div>
         </div>
