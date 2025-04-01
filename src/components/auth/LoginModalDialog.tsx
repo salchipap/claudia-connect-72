@@ -1,11 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useLoginForm } from '@/hooks/useLoginForm';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Lock, Mail } from 'lucide-react';
-import Button from '@/components/Button';
 import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import LoginFormComponent from './LoginForm';
 import VerificationModal from '../VerificationModal';
+import CountrySelect from '../CountrySelect';
 
 type LoginModalDialogProps = {
   onClose: () => void;
@@ -25,81 +25,80 @@ const LoginModalDialog: React.FC<LoginModalDialogProps> = ({ onClose }) => {
     userIdForVerification,
     handleSubmit
   } = useLoginForm();
+  
+  const [loginMethod, setLoginMethod] = useState<'phone' | 'email'>('email');
+  const [countryCode, setCountryCode] = useState('+57');
+  
+  const toggleLoginMethod = () => {
+    setLoginMethod(prev => prev === 'phone' ? 'email' : 'phone');
+    setIdentifier(''); // Clear the identifier when switching methods
+  };
+  
+  const handleFormSubmit = async (values: { identifier: string; password: string }) => {
+    if (loginMethod === 'phone') {
+      // Format phone number
+      const cleanPhone = values.identifier.replace(/\D/g, '');
+      const countryCodeWithoutPlus = countryCode.substring(1);
+      
+      let formattedPhone;
+      if (cleanPhone.startsWith('0')) {
+        formattedPhone = countryCodeWithoutPlus + cleanPhone.substring(1);
+      } else if (cleanPhone.startsWith(countryCodeWithoutPlus)) {
+        formattedPhone = cleanPhone;
+      } else {
+        formattedPhone = countryCodeWithoutPlus + cleanPhone;
+      }
+      
+      // Update identifier with formatted phone
+      setIdentifier(formattedPhone);
+      setPassword(values.password);
+    } else {
+      // Just use email as is
+      setIdentifier(values.identifier);
+      setPassword(values.password);
+    }
+    
+    // Submit the form after a short delay to ensure state updates
+    setTimeout(() => {
+      handleSubmit();
+    }, 0);
+  };
 
   return (
-    <>
-      <DialogContent className="bg-[#142126] border-claudia-primary/30 text-claudia-white sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-claudia-white">Iniciar Sesión</DialogTitle>
-          <DialogDescription className="text-claudia-white/70">
-            Ingresa tus credenciales para acceder a tu cuenta de ClaudIA
-          </DialogDescription>
-        </DialogHeader>
+    <DialogContent className="bg-[#142126] border-claudia-primary/20 text-claudia-white p-0 overflow-hidden max-w-md">
+      <div className="relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-40 h-40 bg-claudia-primary opacity-10 rounded-bl-full -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-claudia-primary opacity-10 rounded-tr-full -z-10"></div>
         
-        {errorMessage && (
-          <Alert variant="destructive" className="bg-red-500/10 border border-red-500/30 text-red-200">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{errorMessage}</AlertDescription>
-          </Alert>
-        )}
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="modal-identifier" className="block text-sm font-medium mb-1 text-claudia-white">
-              Correo Electrónico
-            </label>
-            <div className="relative">
-              <input
-                id="modal-identifier"
-                type="email"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                placeholder="correo@ejemplo.com"
-                disabled={isLoading}
-              />
-              <Mail className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
-            </div>
-          </div>
+        <div className="p-6">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-claudia-white">Iniciar Sesión</DialogTitle>
+            <DialogDescription className="text-claudia-white/70">
+              Ingresa tus credenciales para acceder a ClaudIA
+            </DialogDescription>
+          </DialogHeader>
           
-          <div>
-            <label htmlFor="modal-password" className="block text-sm font-medium mb-1 text-claudia-white">
-              Contraseña
-            </label>
-            <div className="relative">
-              <input
-                id="modal-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                placeholder="Tu contraseña"
-                disabled={isLoading}
-              />
-              <Lock className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
-            </div>
-          </div>
+          {errorMessage && (
+            <Alert variant="destructive" className="mt-4 mb-4 bg-red-500/10 border border-red-500/30 text-red-200">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          )}
           
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onClose}
-              disabled={isLoading}
-              className="text-claudia-white hover:text-claudia-primary"
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              loading={isLoading}
-            >
-              Iniciar Sesión
-            </Button>
+          <div className="mt-4">
+            <LoginFormComponent
+              onSubmit={handleFormSubmit}
+              isLoading={isLoading}
+              loginMethod={loginMethod}
+              toggleLoginMethod={toggleLoginMethod}
+              countryCode={countryCode}
+              setCountryCode={setCountryCode}
+              onCancel={onClose}
+            />
           </div>
-        </form>
-      </DialogContent>
+        </div>
+      </div>
       
       {/* Modal de verificación - solo se muestra cuando showVerification es true */}
       {showVerification && (
@@ -110,7 +109,7 @@ const LoginModalDialog: React.FC<LoginModalDialogProps> = ({ onClose }) => {
           userId={userIdForVerification}
         />
       )}
-    </>
+    </DialogContent>
   );
 };
 

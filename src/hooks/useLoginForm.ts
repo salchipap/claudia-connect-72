@@ -1,9 +1,8 @@
 
 import { useState } from 'react';
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from './useAuth';
 import { useNavigate } from 'react-router-dom';
-import { sendCodeToWhatsApp } from '@/utils/api';
+import { useAuth } from './useAuth';
+import { useToast } from './use-toast';
 
 export const useLoginForm = () => {
   const [identifier, setIdentifier] = useState('');
@@ -11,84 +10,64 @@ export const useLoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showVerification, setShowVerification] = useState(false);
-  
-  // Mantener el correo para la verificación posterior
   const [emailForVerification, setEmailForVerification] = useState('');
-  // Mantener el ID del usuario para la verificación
   const [userIdForVerification, setUserIdForVerification] = useState('');
-
-  const { toast } = useToast();
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     
-    if (!identifier || !password) {
+    if (!identifier.trim() || !password.trim()) {
       setErrorMessage('Por favor, completa todos los campos');
       return;
     }
     
     setIsLoading(true);
+    setErrorMessage(null);
     
     try {
-      // Realizar la validación inicial de credenciales
-      const signInResult = await signIn(identifier, password);
+      // Intentar iniciar sesión
+      const result = await signIn(identifier, password);
       
-      if (!signInResult.success) {
-        console.error('Error signing in:', signInResult.error);
-        throw new Error(signInResult.error || 'Error al iniciar sesión');
+      if (!result.success) {
+        console.error('Login error:', result.error);
+        setErrorMessage(result.error || 'Error al iniciar sesión');
+        setIsLoading(false);
+        return;
       }
       
-      // Extraer los datos del usuario de la sesión actual
-      const userData = signInResult.userData || {};
-      console.log('User data for verification:', userData);
-      
-      // Guardar el correo electrónico para usarlo en la verificación
-      setEmailForVerification(identifier);
-      
-      // Guardar el ID del usuario para la verificación
-      if (userData.id) {
-        setUserIdForVerification(userData.id);
+      // Verificar si el usuario necesita verificación
+      // Suponemos que signIn ahora devuelve userData cuando es necesaria la verificación
+      if (result.needsVerification && result.email) {
+        console.log('User needs verification');
+        setEmailForVerification(result.email);
+        if (result.userId) {
+          setUserIdForVerification(result.userId);
+        }
+        setShowVerification(true);
+        setIsLoading(false);
+        return;
       }
       
-      // Si las credenciales son correctas, enviar código de verificación con todos los datos del usuario
-      const sendCodeResult = await sendCodeToWhatsApp({
-        email: identifier,
-        id: userData.id,
-        name: userData.user_metadata?.name || userData.name,
-        lastname: userData.user_metadata?.lastname || userData.lastname,
-        phone: userData.user_metadata?.remotejid || userData.phone
-      });
-      
-      if (!sendCodeResult.success) {
-        throw new Error(sendCodeResult.message);
-      }
-      
+      // Si todo salió bien, mostrar toast y redirigir
       toast({
-        title: "Código enviado",
-        description: "Hemos enviado un código de verificación a tu WhatsApp.",
+        title: "Inicio de sesión exitoso",
+        description: "¡Bienvenido de nuevo!",
       });
       
-      // Mostrar el modal de verificación
-      setShowVerification(true);
-      
-      // No redirigir aún - esperar a que complete la verificación
+      // Redirigir al dashboard
+      navigate('/dashboard');
       
     } catch (error: any) {
       console.error('Login error:', error);
-      setErrorMessage(error.message || 'Error al iniciar sesión');
-      toast({
-        title: "Error",
-        description: error.message || "Ocurrió un error durante el inicio de sesión.",
-        variant: "destructive",
-      });
+      setErrorMessage(error.message || 'Ocurrió un error durante el inicio de sesión');
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   return {
     identifier,
     setIdentifier,
