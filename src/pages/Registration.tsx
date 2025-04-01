@@ -2,11 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import { useToast } from "@/hooks/use-toast";
-import Button from '@/components/Button';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { Lock, Mail, Phone, User } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import CountrySelect from '@/components/CountrySelect';
+import RegistrationForm, { RegistrationFormData } from '@/components/forms/RegistrationForm';
 import { useAuth } from '@/hooks/useAuth';
 
 const Registration = () => {
@@ -14,14 +11,6 @@ const Registration = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, signUp, loading: authLoading } = useAuth();
-  const [name, setName] = useState('');
-  const [lastname, setLastname] = useState('');
-  const [email, setEmail] = useState('');
-  const [countryCode, setCountryCode] = useState('+57');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('');
 
@@ -37,8 +26,8 @@ const Registration = () => {
     }
   }, [location, navigate, user]);
   
-  const validateForm = () => {
-    if (!name.trim()) {
+  const validateForm = (formData: RegistrationFormData) => {
+    if (!formData.name.trim()) {
       toast({
         title: "Error",
         description: "Please enter your name.",
@@ -47,7 +36,7 @@ const Registration = () => {
       return false;
     }
     
-    if (!lastname.trim()) {
+    if (!formData.lastname.trim()) {
       toast({
         title: "Error",
         description: "Please enter your last name.",
@@ -57,7 +46,7 @@ const Registration = () => {
     }
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(formData.email)) {
       toast({
         title: "Error",
         description: "Please enter a valid email address.",
@@ -68,7 +57,7 @@ const Registration = () => {
     
     // Validate phone number without country code
     const phoneRegex = /^\d{7,15}$/;
-    if (!phoneRegex.test(phoneNumber.replace(/\D/g, ''))) {
+    if (!phoneRegex.test(formData.phoneNumber.replace(/\D/g, ''))) {
       toast({
         title: "Error",
         description: "Please enter a valid phone number (numbers only).",
@@ -77,7 +66,7 @@ const Registration = () => {
       return false;
     }
     
-    if (password.length < 6) {
+    if (formData.password.length < 6) {
       toast({
         title: "Error",
         description: "Password must be at least 6 characters long.",
@@ -86,7 +75,7 @@ const Registration = () => {
       return false;
     }
     
-    if (password !== confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Error",
         description: "Passwords do not match.",
@@ -95,7 +84,7 @@ const Registration = () => {
       return false;
     }
     
-    if (!acceptedTerms) {
+    if (!formData.acceptedTerms) {
       toast({
         title: "Error",
         description: "You must accept the terms and conditions to continue.",
@@ -107,21 +96,19 @@ const Registration = () => {
     return true;
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
+  const handleSubmit = async (formData: RegistrationFormData) => {
+    if (!validateForm(formData)) return;
     
     setIsLoading(true);
     
     try {
       // Combine country code and phone number
-      const fullPhoneNumber = `${countryCode}${phoneNumber}`;
+      const fullPhoneNumber = `${formData.countryCode}${formData.phoneNumber}`;
       
       // Register with Supabase Auth
-      const { data, error } = await signUp(email, password, {
-        name,
-        lastname,
+      const { data, error } = await signUp(formData.email, formData.password, {
+        name: formData.name,
+        lastname: formData.lastname,
         remotejid: fullPhoneNumber,
         plan: selectedPlan || 'Basic'
       });
@@ -177,159 +164,22 @@ const Registration = () => {
             <div className="absolute top-0 right-0 w-40 h-40 bg-claudia-primary opacity-10 rounded-bl-full -z-10"></div>
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-claudia-primary opacity-10 rounded-tr-full -z-10"></div>
             
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Name
-                </label>
-                <div className="relative">
-                  <input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="Your name"
-                    disabled={isLoading}
-                  />
-                  <User className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
-                </div>
-              </div>
-              
-              <div>
-                <label htmlFor="lastname" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Last Name
-                </label>
-                <div className="relative">
-                  <input
-                    id="lastname"
-                    type="text"
-                    value={lastname}
-                    onChange={(e) => setLastname(e.target.value)}
-                    className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="Your last name"
-                    disabled={isLoading}
-                  />
-                  <User className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
-                </div>
-              </div>
-              
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Email
-                </label>
-                <div className="relative">
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="name@example.com"
-                    disabled={isLoading}
-                  />
-                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
-                </div>
-              </div>
-              
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Phone Number (WhatsApp)
-                </label>
-                <div className="flex gap-2">
-                  <CountrySelect 
-                    value={countryCode}
-                    onChange={setCountryCode}
-                    disabled={isLoading}
-                  />
-                  <div className="relative flex-1">
-                    <input
-                      id="phone"
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                      placeholder="3128310805"
-                      disabled={isLoading}
-                    />
-                    <Phone className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="Minimum 6 characters"
-                    disabled={isLoading}
-                  />
-                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
-                </div>
-              </div>
-              
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1 text-claudia-white">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-9 px-3 py-2 border border-claudia-primary/30 rounded-md focus:outline-none focus:ring-2 focus:ring-claudia-primary bg-[#1a2a30] text-claudia-white"
-                    placeholder="Confirm your password"
-                    disabled={isLoading}
-                  />
-                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-2">
-                <Checkbox 
-                  id="terms" 
-                  checked={acceptedTerms}
-                  onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
-                  className="data-[state=checked]:bg-claudia-primary data-[state=checked]:border-claudia-primary border-claudia-primary/50 mt-1"
-                />
-                <label
-                  htmlFor="terms"
-                  className="text-sm text-claudia-white/80"
-                >
-                  I accept the <Link to="/terms" className="text-claudia-primary hover:underline">Terms and Conditions</Link> of ClaudIA
-                </label>
-              </div>
-              
-              <div className="pt-2">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  loading={isLoading}
-                  className="w-full"
-                >
-                  Register
-                </Button>
-              </div>
-              
-              <div className="text-center mt-4 text-claudia-white/70 text-sm">
-                Already have an account?{" "}
-                <button
-                  type="button"
-                  className="text-claudia-primary hover:underline"
-                  onClick={() => navigate('/login')}
-                >
-                  Log in
-                </button>
-              </div>
-            </form>
+            <RegistrationForm
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
+              selectedPlan={selectedPlan}
+            />
+            
+            <div className="text-center mt-4 text-claudia-white/70 text-sm">
+              Already have an account?{" "}
+              <button
+                type="button"
+                className="text-claudia-primary hover:underline"
+                onClick={() => navigate('/login')}
+              >
+                Log in
+              </button>
+            </div>
           </div>
         </div>
       </main>
