@@ -9,7 +9,12 @@ export type AuthContextType = {
     error: any | null;
     data: any | null;
   }>;
-  signIn: (email: string, password: string) => Promise<{
+  signIn: (
+    identifier: string, 
+    password: string, 
+    isPhoneLogin?: boolean, 
+    countryCode?: string
+  ) => Promise<{
     error: any | null;
     data: any | null;
   }>;
