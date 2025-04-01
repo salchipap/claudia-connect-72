@@ -5,7 +5,7 @@ import Button from './Button';
 import LoginModal from './LoginModal';
 import RegistrationModal from './RegistrationModal';
 import { useAuth } from '@/hooks/useAuth';
-import { UserCircle } from 'lucide-react';
+import { UserCircle, BreadSlice } from 'lucide-react';
 
 const NavBar: React.FC = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -51,7 +51,8 @@ const NavBar: React.FC = () => {
           <div className="flex items-center gap-4">
             {userProfile && (
               <div className="hidden md:flex items-center gap-2 text-claudia-white/70">
-                <span>{userProfile.credits || '0'} créditos</span>
+                <BreadSlice size={16} className="text-claudia-primary" />
+                <span>{userProfile.credits || '0'} panes</span>
               </div>
             )}
             <Button 

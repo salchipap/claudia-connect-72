@@ -4,9 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import ReminderCalendar from '@/components/ReminderCalendar';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, UserCircle, CreditCard } from 'lucide-react';
+import { LogOut, UserCircle, Mail, Calendar, BreadSlice } from 'lucide-react';
 import Button from '@/components/Button';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Dashboard = () => {
   const { user, userProfile, signOut, loading } = useAuth();
@@ -61,77 +68,74 @@ const Dashboard = () => {
       <main className="pt-20 pb-12 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8 flex justify-between items-center">
-            <h1 className="text-3xl md:text-4xl font-bold text-claudia-white">Mi Perfil</h1>
-            <Button 
-              variant="ghost" 
-              onClick={handleSignOut}
-              loading={isLoggingOut}
-              className="text-claudia-white hover:text-claudia-primary flex items-center gap-2"
-            >
-              <LogOut size={16} />
-              Cerrar Sesión
-            </Button>
+            <h1 className="text-3xl md:text-4xl font-bold text-claudia-white">Dashboard</h1>
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="flex items-center gap-2 p-2 rounded-full bg-[#1a2a30] hover:bg-claudia-primary/20 transition-colors">
+                  <Avatar className="h-10 w-10 border-2 border-claudia-primary/30">
+                    <AvatarImage src={userProfile.pic || undefined} alt={userProfile.name || 'Usuario'} />
+                    <AvatarFallback className="bg-claudia-primary/20 text-claudia-primary">
+                      {userProfile.name ? userProfile.name[0].toUpperCase() : 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-0 bg-[#1a2a30] border-claudia-primary/20">
+                <div className="p-4 bg-[#142126] rounded-t-md border-b border-claudia-primary/20">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-14 w-14 border-2 border-claudia-primary/30">
+                      <AvatarImage src={userProfile.pic || undefined} alt={userProfile.name || 'Usuario'} />
+                      <AvatarFallback className="bg-claudia-primary/20 text-claudia-primary">
+                        {userProfile.name ? userProfile.name[0].toUpperCase() : 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h2 className="text-lg font-semibold text-claudia-white">
+                        {userProfile.name || 'Usuario'} {userProfile.lastname || ''}
+                      </h2>
+                      <p className="text-sm text-claudia-white/70">
+                        {user.email || userProfile.email || 'No email'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-3">
+                  <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
+                    <BreadSlice size={18} className="text-claudia-primary" />
+                    <span>{userProfile.credits || '0'} panes disponibles</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
+                    <Mail size={18} className="text-claudia-primary" />
+                    <span>{userProfile.remotejid || 'No disponible'}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 p-2 text-claudia-white">
+                    <Calendar size={18} className="text-claudia-primary" />
+                    <span>Tipo: {userProfile.type_user || 'regular'}</span>
+                  </div>
+                  
+                  <div className="mt-4 pt-3 border-t border-claudia-primary/20">
+                    <Button 
+                      onClick={handleSignOut}
+                      loading={isLoggingOut}
+                      variant="ghost"
+                      className="w-full text-claudia-white hover:bg-claudia-primary/20 hover:text-claudia-white"
+                    >
+                      <LogOut size={16} className="mr-2" />
+                      Cerrar Sesión
+                    </Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
           
-          <div className="bg-[#1a2a30] rounded-lg shadow-xl p-8 relative overflow-hidden">
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-claudia-primary opacity-10 rounded-bl-full -z-10"></div>
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-claudia-primary opacity-10 rounded-tr-full -z-10"></div>
-            
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-8">
-              <div className="bg-claudia-primary/20 rounded-full p-4 flex-shrink-0">
-                <UserCircle size={80} className="text-claudia-primary" />
-              </div>
-              
-              <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-claudia-white">
-                  {userProfile.name || 'Usuario'} {userProfile.lastname || ''}
-                </h2>
-                
-                <p className="text-claudia-white/70">
-                  {user.email || userProfile.email || 'No email'}
-                </p>
-                
-                <div className="flex items-center gap-2 text-claudia-primary">
-                  <CreditCard size={18} />
-                  <span className="font-semibold">{userProfile.credits || '0'} créditos disponibles</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-xl font-bold mb-3 text-claudia-white">Información de contacto</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-claudia-white/70 text-sm">Email</p>
-                    <p className="text-claudia-white">{user.email || userProfile.email || 'No disponible'}</p>
-                  </div>
-                  <div>
-                    <p className="text-claudia-white/70 text-sm">WhatsApp</p>
-                    <p className="text-claudia-white">{userProfile.remotejid || 'No disponible'}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="text-xl font-bold mb-3 text-claudia-white">Información de la cuenta</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-claudia-white/70 text-sm">Tipo de usuario</p>
-                    <p className="text-claudia-white capitalize">{userProfile.type_user || 'regular'}</p>
-                  </div>
-                  <div>
-                    <p className="text-claudia-white/70 text-sm">Estado</p>
-                    <p className="text-claudia-white capitalize">{userProfile.status || 'activo'}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 gap-6">
+            <ReminderCalendar />
           </div>
-          
-          {/* Add the new ReminderCalendar component */}
-          <ReminderCalendar />
         </div>
       </main>
     </div>
