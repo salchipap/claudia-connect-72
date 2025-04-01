@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
-import { format, isSameDay } from "date-fns";
+import { format, isSameDay, isBefore, startOfDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -37,7 +38,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 
 const ReminderCalendar = () => {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  // Initialize with current date
+  const today = startOfDay(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loadingReminders, setLoadingReminders] = useState(true);
   const [reminderDates, setReminderDates] = useState<Date[]>([]);
@@ -105,11 +108,20 @@ const ReminderCalendar = () => {
       return;
     }
     
+    // Validate send date is not in the past
+    const sendDate = new Date(newReminder.send_date);
+    if (isBefore(sendDate, new Date())) {
+      toast({
+        title: "Fecha inválida",
+        description: "La fecha de envío no puede ser en el pasado",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setCreatingReminder(true);
     
     try {
-      const sendDate = new Date(newReminder.send_date);
-      
       let phoneNumber = '';
       
       if (userProfile?.remotejid) {
@@ -180,8 +192,17 @@ const ReminderCalendar = () => {
   };
 
   const handleDateSelect = (date: Date | undefined) => {
-    setSelectedDate(date);
-    setPopoverOpen(false);
+    // Prevent selecting dates before today
+    if (date && !isBefore(date, today)) {
+      setSelectedDate(date);
+      setPopoverOpen(false);
+    } else if (date && isBefore(date, today)) {
+      toast({
+        title: "Fecha inválida",
+        description: "No puedes seleccionar fechas anteriores a hoy",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStatusText = (status: string) => {
@@ -248,6 +269,7 @@ const ReminderCalendar = () => {
                     onSelect={handleDateSelect}
                     locale={es}
                     className="bg-[#142126] rounded-md border border-claudia-primary/10 shadow-md"
+                    disabled={(date) => isBefore(date, today)}
                     modifiersClassNames={{
                       selected: 'bg-claudia-primary text-claudia-white',
                       today: 'bg-claudia-primary/10 text-claudia-white',
@@ -435,6 +457,7 @@ const ReminderCalendar = () => {
                 className="bg-[#142126] border-claudia-primary/20 text-claudia-white"
                 value={newReminder.send_date}
                 onChange={(e) => setNewReminder({...newReminder, send_date: e.target.value})}
+                min={new Date().toISOString().slice(0, 16)} // Prevent dates in the past
               />
             </div>
           </div>
