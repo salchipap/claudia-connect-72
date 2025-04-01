@@ -51,49 +51,30 @@ const LoginModal: React.FC<LoginModalProps> = ({
     }
   };
   
+  const toggleLoginMethod = () => {
+    setLoginMethod(prev => prev === 'phone' ? 'email' : 'phone');
+    form.setValue('identifier', '');
+  };
+  
   const onSubmit = async (values: LoginValues) => {
     setIsLoading(true);
     
     try {
-      let email = values.identifier;
-      
-      // Si es teléfono, formateamos para convertirlo en email
-      if (loginMethod === 'phone') {
-        // Limpiamos el número de teléfono para usar solo números
-        const cleanPhone = values.identifier.replace(/\D/g, '');
-        
-        // Formateamos el número de teléfono según Supabase
-        // Importante: NO debemos combinar el código de país si ya está incluido en el número
-        let formattedPhone;
-        
-        // Verificamos si el usuario ya incluyó el código de país en el input
-        if (cleanPhone.startsWith('0')) {
-          // Si comienza con 0, quitamos el 0 y agregamos el código de país sin el +
-          formattedPhone = countryCode.substring(1) + cleanPhone.substring(1);
-        } else if (cleanPhone.startsWith(countryCode.substring(1))) {
-          // Si ya incluye el código de país, lo dejamos como está
-          formattedPhone = cleanPhone;
-        } else {
-          // Si no incluye el código, lo agregamos
-          formattedPhone = countryCode.substring(1) + cleanPhone;
-        }
-        
-        console.log('Número formateado para login:', formattedPhone);
-        
-        // Convertir a email para Supabase (usando el formato del teléfono como usuario)
-        email = `${formattedPhone}@claudia.ai`;
-        
-        console.log('Intentando login con teléfono como email:', email);
-      } else {
-        console.log('Intentando login con email:', email);
-      }
-      
-      // Autenticación directa con Supabase
-      const { data, error } = await signIn(email, values.password);
+      const { data, error } = await signIn(
+        values.identifier, 
+        values.password, 
+        loginMethod === 'phone', // indicar si es un inicio de sesión por teléfono
+        countryCode
+      );
       
       if (error) {
         console.error('Error en autenticación con Supabase:', error);
-        throw error;
+        toast({
+          title: "Error",
+          description: error.message || "Credenciales inválidas. Verifica tu número/email y contraseña.",
+          variant: "destructive",
+        });
+        return;
       }
       
       if (data.session) {
@@ -130,11 +111,6 @@ const LoginModal: React.FC<LoginModalProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const toggleLoginMethod = () => {
-    setLoginMethod(prev => prev === 'phone' ? 'email' : 'phone');
-    form.setValue('identifier', '');
   };
 
   return (
