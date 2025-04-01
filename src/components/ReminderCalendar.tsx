@@ -46,6 +46,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const reminderFormSchema = z.object({
   title: z.string().min(1, { message: "El título es obligatorio" }),
@@ -67,6 +68,7 @@ const ReminderCalendar = () => {
   const [creatingReminder, setCreatingReminder] = useState(false);
   const { user, userProfile } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const form = useForm<ReminderFormValues>({
     resolver: zodResolver(reminderFormSchema),
@@ -268,26 +270,28 @@ const ReminderCalendar = () => {
 
   return (
     <div className="bg-[#1a2a30] rounded-lg shadow-xl">
-      <div className="p-6 border-b border-claudia-primary/20">
-        <div className="flex items-center justify-between mb-6">
+      <div className="p-4 md:p-6 border-b border-claudia-primary/20">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
           <div className="flex items-center gap-2">
-            <CalendarDays className="h-6 w-6 text-claudia-primary" />
-            <h2 className="text-2xl font-bold text-claudia-white">Calendario de Recordatorios</h2>
+            <CalendarDays className="h-5 w-5 md:h-6 md:w-6 text-claudia-primary" />
+            <h2 className="text-xl md:text-2xl font-bold text-claudia-white">Calendario de Recordatorios</h2>
           </div>
           <Button 
             onClick={() => {
               form.reset();
               setIsCreateDialogOpen(true);
             }}
-            className="bg-claudia-primary hover:bg-claudia-primary/80 text-claudia-white"
+            className="bg-claudia-primary hover:bg-claudia-primary/80 text-claudia-white h-9 px-3 md:h-10 md:px-4"
+            size={isMobile ? "sm" : "default"}
           >
-            <Plus className="h-4 w-4 mr-2" /> Crear Recordatorio
+            <Plus className="h-4 w-4 mr-1 md:mr-2" /> 
+            {isMobile ? "Crear" : "Crear Recordatorio"}
           </Button>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6">
           <Card className="flex-1 bg-[#142126] border-claudia-primary/10 shadow-lg">
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                 <PopoverTrigger asChild>
                   <Button
@@ -295,7 +299,7 @@ const ReminderCalendar = () => {
                     className="w-full justify-between text-left font-normal bg-[#1a2a30] border-claudia-primary/20 text-claudia-white hover:bg-[#1a2a30]/80"
                   >
                     <div className="flex items-center">
-                      <CalendarIcon className="mr-2 h-5 w-5 text-claudia-primary" />
+                      <CalendarIcon className="mr-2 h-4 w-4 md:h-5 md:w-5 text-claudia-primary" />
                       {selectedDate ? format(selectedDate, "PPPP", { locale: es }) : "Seleccionar fecha"}
                     </div>
                     <ChevronDown className="h-4 w-4 text-claudia-primary/70" />
@@ -328,21 +332,21 @@ const ReminderCalendar = () => {
                 </PopoverContent>
               </Popover>
 
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold text-claudia-white mb-3 flex items-center">
+              <div className="mt-4 md:mt-6">
+                <h3 className="text-base md:text-lg font-semibold text-claudia-white mb-2 md:mb-3 flex items-center">
                   Leyenda
                 </h3>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-xs md:text-sm">
                   <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 rounded-full bg-[#24D266]"></div>
+                    <div className="h-3 w-3 md:h-4 md:w-4 rounded-full bg-[#24D266]"></div>
                     <span className="text-claudia-white/90">Día seleccionado</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 rounded-full bg-[#24D266]/20"></div>
+                    <div className="h-3 w-3 md:h-4 md:w-4 rounded-full bg-[#24D266]/20"></div>
                     <span className="text-claudia-white/90">Hoy</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 rounded-full border-2 border-[#24D266]/50"></div>
+                    <div className="h-3 w-3 md:h-4 md:w-4 rounded-full border-2 border-[#24D266]/50"></div>
                     <span className="text-claudia-white/90">Tiene recordatorios</span>
                   </div>
                 </div>
@@ -351,10 +355,10 @@ const ReminderCalendar = () => {
           </Card>
 
           <Card className="flex-[2] bg-[#142126] border-claudia-primary/10 shadow-lg">
-            <CardContent className="p-4">
-              <h3 className="text-xl font-semibold text-claudia-white mb-4 flex items-center justify-between">
+            <CardContent className="p-3 md:p-4">
+              <h3 className="text-lg md:text-xl font-semibold text-claudia-white mb-3 md:mb-4 flex items-center justify-between">
                 <div className="flex items-center">
-                  <CalendarClock size={20} className="text-claudia-primary mr-2" />
+                  <CalendarClock size={isMobile ? 18 : 20} className="text-claudia-primary mr-2" />
                   {selectedDate ? 
                     format(selectedDate, "d 'de' MMMM, yyyy", { locale: es }) : 
                     "Selecciona una fecha para ver recordatorios"}
@@ -364,13 +368,13 @@ const ReminderCalendar = () => {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="text-claudia-primary hover:text-claudia-white hover:bg-claudia-primary/20"
+                    className="text-claudia-primary hover:text-claudia-white hover:bg-claudia-primary/20 h-8 px-2 md:h-9 md:px-3"
                     onClick={() => {
                       form.reset();
                       setIsCreateDialogOpen(true);
                     }}
                   >
-                    <Plus className="h-4 w-4 mr-1" /> Nuevo
+                    <Plus className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1" /> Nuevo
                   </Button>
                 )}
               </h3>
