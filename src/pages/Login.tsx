@@ -14,6 +14,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     // Redirect if user is already logged in
@@ -23,6 +24,8 @@ const Login = () => {
   }, [navigate, user]);
   
   const validateForm = () => {
+    setErrorMessage(null);
+    
     if (!email.trim()) {
       toast({
         title: "Error",
@@ -50,11 +53,14 @@ const Login = () => {
     if (!validateForm()) return;
     
     setIsLoading(true);
+    setErrorMessage(null);
     
     try {
+      console.log('Intentando login con Supabase');
       const { data, error } = await signIn(email, password);
       
       if (error) {
+        console.error('Supabase login error:', error);
         throw error;
       }
       
@@ -65,10 +71,26 @@ const Login = () => {
       
       navigate('/dashboard');
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('Login error details:', error);
+      
+      let errorMsg = "Email o contraseña inválidos. Por favor intenta de nuevo.";
+      
+      // Manejar errores específicos de Supabase
+      if (error.message) {
+        if (error.message.includes("Invalid login credentials")) {
+          errorMsg = "Credenciales inválidas. Verifica tu email y contraseña.";
+        } else if (error.message.includes("Email not confirmed")) {
+          errorMsg = "Tu email aún no ha sido confirmado. Por favor revisa tu bandeja de entrada.";
+        } else {
+          errorMsg = error.message;
+        }
+      }
+      
+      setErrorMessage(errorMsg);
+      
       toast({
         title: "Error de inicio de sesión",
-        description: error.message || "Email o contraseña inválidos. Por favor intenta de nuevo.",
+        description: errorMsg,
         variant: "destructive",
       });
     } finally {
@@ -99,6 +121,12 @@ const Login = () => {
             {/* Decorative elements */}
             <div className="absolute top-0 right-0 w-40 h-40 bg-claudia-primary opacity-10 rounded-bl-full -z-10"></div>
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-claudia-primary opacity-10 rounded-tr-full -z-10"></div>
+            
+            {errorMessage && (
+              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-md text-red-200 text-sm">
+                <p>{errorMessage}</p>
+              </div>
+            )}
             
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
