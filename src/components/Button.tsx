@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
@@ -7,12 +8,15 @@ type ButtonProps = {
   type?: 'button' | 'submit' | 'reset';
   className?: string;
   variant?: 'primary' | 'secondary' | 'outlined' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   disabled?: boolean;
   loading?: boolean;
   children: React.ReactNode;
   href?: string;
   to?: string;
+  icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
+  fullWidth?: boolean;
 };
 
 const Button = ({
@@ -26,6 +30,9 @@ const Button = ({
   children,
   href,
   to,
+  icon,
+  iconPosition = 'left',
+  fullWidth = false,
   ...props
 }: ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
   const baseStyles = 'relative inline-flex items-center justify-center font-medium rounded-md transition-all ease-in-out duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-claudia-primary hover:scale-[1.02] active:scale-[0.98]';
@@ -38,12 +45,14 @@ const Button = ({
   };
   
   const sizeStyles = {
+    xs: 'text-xs px-2 py-1',
     sm: 'text-sm px-3 py-1.5',
-    md: 'text-base px-5 py-2.5',
-    lg: 'text-lg px-8 py-3.5'
+    md: 'text-base px-4 py-2',
+    lg: 'text-lg px-6 py-3'
   };
   
   const disabledStyles = disabled ? 'opacity-60 cursor-not-allowed' : '';
+  const fullWidthStyles = fullWidth ? 'w-full' : '';
   
   const buttonContent = (
     <>
@@ -55,7 +64,11 @@ const Button = ({
           </svg>
         </div>
       )}
-      <span className={loading ? 'opacity-0' : ''}>{children}</span>
+      <span className={`flex items-center gap-1.5 ${loading ? 'opacity-0' : ''}`}>
+        {icon && iconPosition === 'left' && icon}
+        {children}
+        {icon && iconPosition === 'right' && icon}
+      </span>
     </>
   );
   
@@ -64,6 +77,7 @@ const Button = ({
     variantStyles[variant],
     sizeStyles[size],
     disabledStyles,
+    fullWidthStyles,
     className
   );
   

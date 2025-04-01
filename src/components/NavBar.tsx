@@ -134,6 +134,8 @@ const NavBar: React.FC = () => {
                 onClick={openWhatsAppChat}
                 variant="primary"
                 className="flex items-center gap-2"
+                icon={<ExternalLink size={14} />}
+                iconPosition="right"
               >
                 <div className="flex items-center gap-2">
                   <div className="h-5 w-5 rounded-full overflow-hidden">
@@ -145,15 +147,14 @@ const NavBar: React.FC = () => {
                   </div>
                   <span className="hidden md:inline">Chatear con ClaudIA</span>
                 </div>
-                <ExternalLink size={14} />
               </Button>
               
               <Button 
                 onClick={goToProfile} 
                 variant="ghost"
                 className="flex items-center gap-2 text-claudia-white hover:text-claudia-primary"
+                icon={<UserCircle size={20} />}
               >
-                <UserCircle size={20} />
                 <span className="hidden lg:inline">{userProfile?.name || 'Mi perfil'}</span>
               </Button>
               <Button 
@@ -170,12 +171,14 @@ const NavBar: React.FC = () => {
                 onClick={openLoginModal}
                 variant="outlined"
                 className="text-claudia-white border-claudia-white"
+                size="sm"
               >
                 Iniciar Sesión
               </Button>
               <Button 
                 onClick={openRegistrationModal}
                 variant="primary"
+                size="sm"
               >
                 Registrarme
               </Button>
@@ -214,31 +217,35 @@ const NavBar: React.FC = () => {
                 <Button 
                   onClick={openWhatsAppChat}
                   variant="primary"
-                  className="w-full flex items-center justify-center gap-2"
+                  fullWidth
+                  className="flex items-center justify-center gap-2"
+                  icon={<ExternalLink size={14} />}
+                  iconPosition="right"
                 >
-                  <div className="h-5 w-5 rounded-full overflow-hidden">
-                    <img 
-                      src="https://img.recraft.ai/TPT2gnDTOAplVWXdKprcxYJZGSC82p_p5DJzbNYpSyU/rs:fit:1024:1024:0/q:95/g:no/plain/abs://prod/images/8fbdfedc-79e6-4ae5-9912-89c9048c67d8@jpg" 
-                      alt="ClaudIA" 
-                      className="h-full w-full object-cover" 
-                    />
+                  <div className="flex items-center gap-2">
+                    <div className="h-5 w-5 rounded-full overflow-hidden">
+                      <img 
+                        src="https://img.recraft.ai/TPT2gnDTOAplVWXdKprcxYJZGSC82p_p5DJzbNYpSyU/rs:fit:1024:1024:0/q:95/g:no/plain/abs://prod/images/8fbdfedc-79e6-4ae5-9912-89c9048c67d8@jpg" 
+                        alt="ClaudIA" 
+                        className="h-full w-full object-cover" 
+                      />
+                    </div>
+                    <span>Chatear con ClaudIA</span>
                   </div>
-                  <span>Chatear con ClaudIA</span>
-                  <ExternalLink size={14} />
                 </Button>
                 
                 <Button 
                   onClick={goToProfile} 
                   variant="outlined"
-                  className="w-full"
+                  fullWidth
                 >
                   Mi perfil
                 </Button>
                 
                 <Button 
                   onClick={handleSignOut} 
-                  variant="ghost" 
-                  className="w-full"
+                  variant="ghost"
+                  fullWidth
                 >
                   Cerrar Sesión
                 </Button>
@@ -248,14 +255,14 @@ const NavBar: React.FC = () => {
                 <Button
                   onClick={openLoginModal}
                   variant="outlined"
-                  className="w-full"
+                  fullWidth
                 >
                   Iniciar Sesión
                 </Button>
                 <Button 
                   onClick={openRegistrationModal}
                   variant="primary"
-                  className="w-full"
+                  fullWidth
                 >
                   Registrarme
                 </Button>
