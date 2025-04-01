@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import { useToast } from "@/hooks/use-toast";
@@ -50,15 +51,15 @@ const Registration = () => {
       console.log('Registrando con número:', formattedPhone);
       
       // Register with Supabase Auth
-      const { data, error } = await signUp(formData.email, formData.password, {
+      const result = await signUp(formData.email, formData.password, {
         name: formData.name,
         lastname: formData.lastname,
         remotejid: formattedPhone,
         plan: selectedPlan || 'Basic'
       });
       
-      if (error) {
-        throw error;
+      if (!result.success) {
+        throw new Error(result.error || "Error durante el registro");
       }
       
       // Success message

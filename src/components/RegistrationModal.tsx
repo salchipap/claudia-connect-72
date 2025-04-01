@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog } from '@/components/ui/dialog';
 import { useToast } from "@/hooks/use-toast";
@@ -51,24 +52,24 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
       console.log('Registrando con número:', formattedPhone);
       
       // Register with Supabase Auth
-      const { data, error } = await signUp(formData.email, formData.password, {
+      const result = await signUp(formData.email, formData.password, {
         name: formData.name,
         lastname: formData.lastname,
         remotejid: formattedPhone,
         plan: selectedPlan || 'Basic'
       });
       
-      if (error) {
-        console.error('Supabase registration error:', error);
+      if (!result.success) {
+        console.error('Supabase registration error:', result.error);
         toast({
           title: "Error en el registro",
-          description: error.message || "Hubo un problema al registrar tu cuenta.",
+          description: result.error || "Hubo un problema al registrar tu cuenta.",
           variant: "destructive",
         });
         return;
       }
       
-      console.log('Supabase registration success:', data);
+      console.log('Supabase registration success!');
       
       // Close the registration modal
       handleClose();

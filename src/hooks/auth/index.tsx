@@ -1,8 +1,8 @@
 
 import { useState, useEffect, createContext, useContext } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Session, User } from '@supabase/supabase-js';
-import { AuthContextType } from './types';
+import { Session } from '@supabase/supabase-js';
+import { AuthContextType, User, UserProfile } from './types';
 import { signIn } from './signIn';
 import { signUp } from './signUp';
 import { signOut } from './signOut';
@@ -12,9 +12,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<any | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Set up auth state listener FIRST - this is critical for session management
@@ -33,6 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               setUserProfile(profile);
             }).catch(error => {
               console.error('Error fetching user profile:', error);
+              setError('Error fetching user profile');
             });
           }, 0);
         } else {
@@ -53,6 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUserProfile(profile);
         }).catch(error => {
           console.error('Error fetching initial user profile:', error);
+          setError('Error fetching initial user profile');
         });
       }
       
@@ -60,19 +63,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }).catch(error => {
       console.error('Error getting session:', error);
       setLoading(false);
+      setError('Error getting session');
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const value = {
-    session,
+  const value: AuthContextType = {
     user,
     userProfile,
     signUp,
     signIn,
     signOut,
     loading,
+    error
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

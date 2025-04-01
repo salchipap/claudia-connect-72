@@ -1,146 +1,24 @@
+
 import { supabase } from '@/integrations/supabase/client';
-import { fetchUserProfile } from './fetchUserProfile';
 
-/**
- * Format a phone number for Supabase authentication
- * @param phoneNumber The raw phone number input
- * @param countryCode The country code with + prefix (e.g., +57)
- * @returns Properly formatted phone number
- */
-const formatPhoneNumber = (phoneNumber: string, countryCode: string): string => {
-  // Strip all non-digit characters
-  const cleanPhone = phoneNumber.replace(/\D/g, '');
-  
-  // Remove the + from country code if present
-  const cleanCountryCode = countryCode.startsWith('+') 
-    ? countryCode.substring(1) 
-    : countryCode;
-  
-  // Handle different formatting scenarios
-  if (cleanPhone.startsWith('0')) {
-    // If number starts with 0, remove it and add country code
-    return cleanCountryCode + cleanPhone.substring(1);
-  } else if (cleanPhone.startsWith(cleanCountryCode)) {
-    // If number already includes country code, use as is
-    return cleanPhone;
-  } else {
-    // Otherwise, add country code to number
-    return cleanCountryCode + cleanPhone;
-  }
-};
-
-export const signIn = async (email: string, password: string, isPhoneLogin = false, countryCode = '+57') => {
+export const signIn = async (email: string, password: string) => {
   try {
-    console.log(`Login attempt with ${isPhoneLogin ? 'phone' : 'email'}: ${email}`);
+    console.log('Signing in with email:', email);
     
-    let formattedIdentifier = email;
-    
-    // Format phone number if this is a phone login
-    if (isPhoneLogin) {
-      const formattedPhone = formatPhoneNumber(email, countryCode);
-      console.log('Raw phone input:', email);
-      console.log('Country code:', countryCode);
-      console.log('Formatted phone:', formattedPhone);
-      
-      // Directamente usar el número de teléfono como identificador sin @claudia.ai
-      // Prueba primero con el formato completo del teléfono
-      try {
-        const result = await supabase.auth.signInWithPassword({
-          email: `${formattedPhone}@claudia.ai`,
-          password,
-        });
-        
-        if (!result.error) {
-          console.log('Successfully signed in with phone@claudia.ai format');
-          return result;
-        }
-        
-        // Si falló, intentamos buscar el usuario por su remotejid en la tabla users
-        console.log('Trying to find user by remotejid...');
-        const { data: users } = await supabase
-          .from('users')
-          .select('email')
-          .eq('remotejid', formattedPhone)
-          .maybeSingle();
-        
-        if (users && users.email) {
-          console.log('Found user with matching remotejid, trying to sign in with email:', users.email);
-          return await supabase.auth.signInWithPassword({
-            email: users.email,
-            password,
-          });
-        }
-        
-        // Si todavía no hay éxito, intenta con correo original por si acaso
-        console.log('No matching remotejid found, trying original email as fallback');
-        return result;
-      } catch (error) {
-        console.error('Error during phone login attempts:', error);
-        throw error;
-      }
-    } else {
-      // Email login remains the same
-      formattedIdentifier = email;
-    }
-    
-    console.log('Final identifier for Supabase:', formattedIdentifier);
-    
-    const result = await supabase.auth.signInWithPassword({
-      email: formattedIdentifier,
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
       password,
     });
     
-    console.log('SignIn result:', result);
-    
-    if (result.error) {
-      console.error('Error signing in:', result.error);
-      return { data: null, error: result.error };
+    if (error) {
+      console.error('Error signing in:', error);
+      return { success: false, error: error.message };
     }
     
-    console.log('Successfully signed in user:', result.data.user);
-    
-    // Verify if the user exists in the users table
-    if (result.data.user) {
-      try {
-        const userProfileData = await fetchUserProfile(result.data.user.id);
-        
-        if (!userProfileData) {
-          console.warn('User exists in auth but not in users table, creating profile...');
-          
-          // Try to create the profile if it doesn't exist
-          let remotejid = null;
-          if (isPhoneLogin) {
-            // For phone logins, use the formatted phone number without @claudia.ai
-            remotejid = formatPhoneNumber(email, countryCode);
-          } else if (formattedIdentifier.includes('@claudia.ai')) {
-            remotejid = formattedIdentifier.split('@')[0];
-          }
-          
-          const { error: insertError } = await supabase
-            .from('users')
-            .insert([{ 
-              id: result.data.user.id, 
-              email: formattedIdentifier,
-              remotejid: remotejid,
-              status: 'active',
-              type_user: 'regular',
-              credits: '10'
-            }]);
-            
-          if (insertError) {
-            console.error('Error creating missing user profile:', insertError);
-          } else {
-            console.log('Created missing user profile');
-          }
-        }
-      } catch (err) {
-        console.error('Exception during missing profile creation:', err);
-      }
-    }
-    
-    return { data: result.data, error: null };
-  } catch (error) {
-    console.error('Exception during signin:', error);
-    return { data: null, error };
+    console.log('Successfully signed in:', data);
+    return { success: true };
+  } catch (error: any) {
+    console.error('Exception during sign in:', error);
+    return { success: false, error: error.message || 'An unknown error occurred' };
   }
 };

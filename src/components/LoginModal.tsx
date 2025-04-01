@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import Button from './Button';
@@ -60,35 +59,26 @@ const LoginModal: React.FC<LoginModalProps> = ({
     setIsLoading(true);
     
     try {
-      const { data, error } = await signIn(
-        values.identifier, 
-        values.password, 
-        loginMethod === 'phone', // indicar si es un inicio de sesión por teléfono
-        countryCode
-      );
+      // Currently we only support email login
+      const result = await signIn(values.identifier, values.password);
       
-      if (error) {
-        console.error('Error en autenticación con Supabase:', error);
+      if (!result.success) {
+        console.error('Error en autenticación:', result.error);
         toast({
           title: "Error",
-          description: error.message || "Credenciales inválidas. Verifica tu número/email y contraseña.",
+          description: result.error || "Credenciales inválidas. Verifica tu número/email y contraseña.",
           variant: "destructive",
         });
         return;
       }
       
-      if (data.session) {
-        console.log('Inicio de sesión exitoso:', data);
-        toast({
-          title: "Inicio de sesión exitoso",
-          description: "Bienvenido a ClaudIA.",
-        });
-        
-        handleClose();
-        navigate('/dashboard');
-      } else {
-        throw new Error('No se pudo iniciar sesión, no se obtuvo la sesión');
-      }
+      toast({
+        title: "Inicio de sesión exitoso",
+        description: "Bienvenido a ClaudIA.",
+      });
+      
+      handleClose();
+      navigate('/dashboard');
     } catch (error: any) {
       console.error('Error logging in:', error);
       
@@ -96,11 +86,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
       let errorMessage = "Credenciales inválidas o servicio no disponible.";
       
       if (error?.message) {
-        if (error.message.includes("Invalid login credentials")) {
-          errorMessage = "Credenciales inválidas. Verifica tu número/email y contraseña.";
-        } else {
-          errorMessage = error.message;
-        }
+        errorMessage = error.message;
       }
       
       toast({
@@ -117,7 +103,6 @@ const LoginModal: React.FC<LoginModalProps> = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="bg-[#142126] border-claudia-primary/20 text-claudia-white p-0 overflow-hidden max-w-md">
         <div className="relative overflow-hidden">
-          {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-40 h-40 bg-claudia-primary opacity-10 rounded-bl-full -z-10"></div>
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-claudia-primary opacity-10 rounded-tr-full -z-10"></div>
           

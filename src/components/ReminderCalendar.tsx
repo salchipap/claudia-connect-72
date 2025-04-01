@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { format, isSameDay, isBefore, startOfDay } from "date-fns";
@@ -281,7 +280,7 @@ const ReminderCalendar = () => {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-full justify-between text-left font-normal bg-[#1a2a30] border-claudia-primary/20 text-claudia-white hover:bg-[#1a2a30]/80 hover:border-claudia-primary/30"
+                    className="w-full justify-between text-left font-normal bg-[#1a2a30] border-claudia-primary/20 text-claudia-white hover:bg-[#1a2a30]/80"
                   >
                     <div className="flex items-center">
                       <CalendarIcon className="mr-2 h-5 w-5 text-claudia-primary" />
