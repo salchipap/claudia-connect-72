@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReminderCalendar from '@/components/ReminderCalendar';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, UserCircle, Mail, Calendar, MessageCircle, Phone, ExternalLink } from 'lucide-react';
+import { LogOut, UserCircle, Mail, Calendar, MessageCircle, Phone, ExternalLink, CreditCard } from 'lucide-react';
 import Button from '@/components/Button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -21,7 +20,6 @@ const Dashboard = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
-    // Si no hay usuario autenticado y no está cargando, redirigir al login
     if (!loading && !user) {
       navigate('/login');
     }
@@ -35,7 +33,6 @@ const Dashboard = () => {
         title: "Sesión cerrada",
         description: "Has cerrado sesión correctamente",
       });
-      // No es necesario navegar aquí ya que signOut.ts maneja la redirección
     } catch (error: any) {
       console.error('Error al cerrar sesión:', error);
       toast({
@@ -47,16 +44,12 @@ const Dashboard = () => {
     }
   };
 
-  // Función para abrir WhatsApp
   const openWhatsAppChat = () => {
-    // Número de WhatsApp de ClaudIA (reemplazar por el número correcto)
     const whatsappNumber = "+573128310805";
     const message = "Hola ClaudIA, quiero chatear contigo";
     
-    // Crear la URL de WhatsApp
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     
-    // Abrir en una nueva pestaña
     window.open(whatsappUrl, '_blank');
   };
 
@@ -69,10 +62,9 @@ const Dashboard = () => {
   }
 
   if (!user || !userProfile) {
-    return null; // No renderizar nada mientras se redirige
+    return null;
   }
 
-  // Extraer número de teléfono del usuario desde remotejid o user_metadata
   const userPhoneNumber = userProfile.remotejid || 
                          (user.user_metadata?.remotejid) || 
                          'No disponible';
@@ -141,7 +133,7 @@ const Dashboard = () => {
                     </div>
                     
                     <div className="flex items-center gap-2 p-2 mb-2 text-claudia-white">
-                      <MessageCircle size={18} className="text-claudia-primary" />
+                      <CalendarDays size={18} className="text-claudia-primary" />
                       <span>{userProfile.reminders || '0'} recordatorios disponibles</span>
                     </div>
                     
@@ -156,7 +148,7 @@ const Dashboard = () => {
                     </div>
                     
                     <div className="flex items-center gap-2 p-2 text-claudia-white">
-                      <Calendar size={18} className="text-claudia-primary" />
+                      <CreditCard size={18} className="text-claudia-primary" />
                       <span>Tipo: {userProfile.type_user || 'regular'}</span>
                     </div>
                     

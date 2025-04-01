@@ -119,6 +119,16 @@ const ReminderCalendar = () => {
       return;
     }
     
+    // Verificar si el usuario tiene recordatorios disponibles
+    if (userProfile?.reminders && parseInt(userProfile.reminders) <= 0) {
+      toast({
+        title: "Sin recordatorios disponibles",
+        description: "Has alcanzado el límite de recordatorios disponibles",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setCreatingReminder(true);
     
     try {
@@ -153,6 +163,7 @@ const ReminderCalendar = () => {
       
       console.log('Datos del recordatorio a guardar:', reminderData);
       
+      // Crear el recordatorio
       const { data, error } = await supabase
         .from('reminders')
         .insert(reminderData)
@@ -165,6 +176,23 @@ const ReminderCalendar = () => {
         setReminders([...reminders, newReminderData]);
         
         setReminderDates([...reminderDates, selectedDate]);
+        
+        // Decrementar el contador de recordatorios disponibles
+        if (userProfile && userProfile.reminders) {
+          const currentReminders = parseInt(userProfile.reminders);
+          const newCount = Math.max(0, currentReminders - 1).toString();
+          
+          const { error: updateError } = await supabase
+            .from('users')
+            .update({ reminders: newCount })
+            .eq('id', user.id);
+            
+          if (updateError) {
+            console.error('Error al actualizar recordatorios disponibles:', updateError);
+          } else {
+            console.log('Recordatorios disponibles actualizados a:', newCount);
+          }
+        }
         
         toast({
           title: "Recordatorio creado",

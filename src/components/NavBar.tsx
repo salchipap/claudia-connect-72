@@ -5,7 +5,7 @@ import Button from './Button';
 import LoginModal from './LoginModal';
 import RegistrationModal from './RegistrationModal';
 import { useAuth } from '@/hooks/useAuth';
-import { UserCircle, MessageCircle, Phone, ExternalLink } from 'lucide-react';
+import { UserCircle, MessageCircle, Phone, ExternalLink, CalendarDays, CreditCard } from 'lucide-react';
 
 const NavBar: React.FC = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -76,6 +76,13 @@ const NavBar: React.FC = () => {
               <div className="hidden md:flex items-center gap-2 text-claudia-white/70">
                 <MessageCircle size={16} className="text-claudia-primary" />
                 <span>{userProfile.credits || '0'} mensajes</span>
+              </div>
+            )}
+            
+            {userProfile && (
+              <div className="hidden md:flex items-center gap-2 text-claudia-white/70">
+                <CalendarDays size={16} className="text-claudia-primary" />
+                <span>{userProfile.reminders || '0'} recordatorios</span>
               </div>
             )}
             
