@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
+import ReminderCalendar from '@/components/ReminderCalendar';
 import { useAuth } from '@/hooks/useAuth';
 import { LogOut, UserCircle, CreditCard } from 'lucide-react';
 import Button from '@/components/Button';
@@ -128,6 +129,9 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
+          
+          {/* Add the new ReminderCalendar component */}
+          <ReminderCalendar />
         </div>
       </main>
     </div>
