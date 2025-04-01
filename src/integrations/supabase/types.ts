@@ -72,6 +72,7 @@ export type Database = {
           password: string | null
           pic: string | null
           push_name: string | null
+          reminders: string | null
           remotejid: string | null
           status: string | null
           type_user: string | null
@@ -87,6 +88,7 @@ export type Database = {
           password?: string | null
           pic?: string | null
           push_name?: string | null
+          reminders?: string | null
           remotejid?: string | null
           status?: string | null
           type_user?: string | null
@@ -102,6 +104,7 @@ export type Database = {
           password?: string | null
           pic?: string | null
           push_name?: string | null
+          reminders?: string | null
           remotejid?: string | null
           status?: string | null
           type_user?: string | null
