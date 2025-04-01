@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { registerUserWithWebhook } from '@/utils/api';
 import VerificationModal from './VerificationModal';
 import { Lock, Mail, Phone, User } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Link } from 'react-router-dom';
 import CountrySelect from './CountrySelect';
 
 type RegistrationModalProps = {
@@ -27,6 +29,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   
@@ -42,6 +45,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
         setPhoneNumber('');
         setPassword('');
         setConfirmPassword('');
+        setAcceptedTerms(false);
       }, 300);
     }
   };
@@ -99,6 +103,15 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
       toast({
         title: "Error",
         description: "Las contraseñas no coinciden.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    if (!acceptedTerms) {
+      toast({
+        title: "Error",
+        description: "Debes aceptar los términos y condiciones para continuar.",
         variant: "destructive",
       });
       return false;
@@ -286,6 +299,21 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
                     />
                     <Lock className="absolute left-3 top-2.5 h-4 w-4 text-claudia-primary/70" />
                   </div>
+                </div>
+                
+                <div className="flex items-start space-x-2">
+                  <Checkbox 
+                    id="modal-terms" 
+                    checked={acceptedTerms}
+                    onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
+                    className="data-[state=checked]:bg-claudia-primary data-[state=checked]:border-claudia-primary border-claudia-primary/50 mt-1"
+                  />
+                  <label
+                    htmlFor="modal-terms"
+                    className="text-sm text-claudia-white/80"
+                  >
+                    Acepto los <Link to="/terms" onClick={handleClose} className="text-claudia-primary hover:underline">Términos y Condiciones</Link> de ClaudIA
+                  </label>
                 </div>
                 
                 <div className="flex justify-end space-x-3 pt-2">

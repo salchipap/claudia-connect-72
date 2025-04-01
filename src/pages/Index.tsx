@@ -5,6 +5,7 @@ import HeroSection from '@/components/HeroSection';
 import FeaturesSection from '@/components/FeaturesSection';
 import PricingSection from '@/components/PricingSection';
 import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Index = () => {
   return (
@@ -63,9 +64,14 @@ const Index = () => {
                     </a>
                   </li>
                   <li>
-                    <a href="#register" className="text-claudia-white/70 hover:text-claudia-primary transition-colors">
+                    <Link to="/register" className="text-claudia-white/70 hover:text-claudia-primary transition-colors">
                       Registrarse
-                    </a>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/terms" className="text-claudia-white/70 hover:text-claudia-primary transition-colors">
+                      Términos y Condiciones
+                    </Link>
                   </li>
                 </ul>
               </div>

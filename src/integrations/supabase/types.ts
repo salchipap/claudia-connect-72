@@ -9,6 +9,57 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      reminders: {
+        Row: {
+          action: string | null
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          message: string
+          origin: string
+          remotejid: string
+          repetition: string | null
+          send_date: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action?: string | null
+          created_at?: string
+          date: string
+          description?: string | null
+          id?: string
+          message: string
+          origin?: string
+          remotejid: string
+          repetition?: string | null
+          send_date: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action?: string | null
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          message?: string
+          origin?: string
+          remotejid?: string
+          repetition?: string | null
+          send_date?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           created_at: string | null

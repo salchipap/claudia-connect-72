@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import Registration from "./pages/Registration";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
+import Dashboard from "./pages/Dashboard";
+import TermsAndConditions from "./pages/TermsAndConditions";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +24,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/register" element={<Registration />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
