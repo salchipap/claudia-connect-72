@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { format, isSameDay, isBefore, startOfDay, set, parseISO, isAfter } from "date-fns";
@@ -165,10 +166,12 @@ const ReminderCalendar = () => {
         if (error) throw error;
 
         const formattedReminders = data.map(item => {
+          // Handle both old and new column formats
+          // Don't try to access 'title' directly as it may not exist in the new schema
           const reminder: Reminder = {
             ...item,
-            reminder: item.reminder || item.title || '',
-            action: item.action || item.message || ''
+            reminder: item.reminder || '', // Use reminder column directly if it exists
+            action: item.action || item.message || '' // Prioritize action column if it exists
           };
           return reminder;
         });
@@ -248,12 +251,13 @@ const ReminderCalendar = () => {
       
       console.log('Número de teléfono usado para el recordatorio:', phoneNumber);
       
+      // Create the reminder data object compatible with database schema
+      // We need to include both old and new column names during transition
       const reminderData = {
         user_id: user.id,
-        title: data.reminder,
-        reminder: data.reminder,
-        message: data.action,
-        action: data.action,
+        reminder: data.reminder, // New column name
+        message: data.action, // Old column name for backward compatibility
+        action: data.action, // New column name
         description: data.description || null,
         date: selectedDate.toISOString(),
         send_date: sendDate.toISOString(),
@@ -274,8 +278,8 @@ const ReminderCalendar = () => {
       if (reminderResponse && reminderResponse.length > 0) {
         const newReminderData: Reminder = {
           ...reminderResponse[0],
-          reminder: reminderResponse[0].reminder || reminderResponse[0].title || '',
-          action: reminderResponse[0].action || reminderResponse[0].message || ''
+          reminder: reminderResponse[0].reminder || '', // Use the reminder field directly
+          action: reminderResponse[0].action || reminderResponse[0].message || '' // Prioritize action field
         };
         
         setReminders([...reminders, newReminderData]);
