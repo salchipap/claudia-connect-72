@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { format, isSameDay, isBefore, startOfDay, set, parseISO, isAfter } from "date-fns";
@@ -49,8 +50,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useIsMobile, getStartOfDay } from "@/hooks/use-mobile";
 
 const reminderFormSchema = z.object({
-  title: z.string().min(1, { message: "El título es obligatorio" }),
-  message: z.string().min(1, { message: "El mensaje es obligatorio" }),
+  reminder: z.string().min(1, { message: "El recordatorio es obligatorio" }),
+  action: z.string().min(1, { message: "La acción es obligatoria" }),
   description: z.string().optional(),
   time: z.string().min(1, { message: "La hora es obligatoria" }),
 });
@@ -74,8 +75,8 @@ const ReminderCalendar = () => {
   const form = useForm<ReminderFormValues>({
     resolver: zodResolver(reminderFormSchema),
     defaultValues: {
-      title: "",
-      message: "",
+      reminder: "",
+      action: "",
       description: "",
       time: format(new Date().setMinutes(Math.ceil(new Date().getMinutes() / 5) * 5), "HH:mm"),
     },
@@ -255,8 +256,8 @@ const ReminderCalendar = () => {
       
       const reminderData = {
         user_id: user.id,
-        title: data.title,
-        message: data.message,
+        reminder: data.reminder,
+        action: data.action,
         description: data.description || null,
         date: selectedDate.toISOString(),
         send_date: sendDate.toISOString(),
@@ -479,8 +480,8 @@ const ReminderCalendar = () => {
                       >
                         <div className="flex justify-between items-start">
                           <div>
-                            <h4 className="font-semibold text-lg text-claudia-white">{reminder.title}</h4>
-                            <p className="text-claudia-white/90 mt-1">{reminder.message}</p>
+                            <h4 className="font-semibold text-lg text-claudia-white">{reminder.reminder}</h4>
+                            <p className="text-claudia-white/90 mt-1">{reminder.action}</p>
                             {reminder.description && (
                               <p className="text-claudia-white/70 mt-2 text-sm">{reminder.description}</p>
                             )}
@@ -551,13 +552,13 @@ const ReminderCalendar = () => {
               
               <FormField
                 control={form.control}
-                name="title"
+                name="reminder"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-claudia-white">Título</FormLabel>
+                    <FormLabel className="text-claudia-white">Recordatorio</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="Título del recordatorio" 
+                        placeholder="¿Qué quieres recordar?" 
                         className="bg-[#142126] border-claudia-primary/20 text-claudia-white"
                         {...field}
                       />
@@ -569,13 +570,13 @@ const ReminderCalendar = () => {
               
               <FormField
                 control={form.control}
-                name="message"
+                name="action"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-claudia-white">Mensaje</FormLabel>
+                    <FormLabel className="text-claudia-white">Acción para ClaudIA</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Contenido del recordatorio" 
+                        placeholder="¿Qué acción debe realizar ClaudIA? Ej: Buscar noticias económicas del día siguiente" 
                         className="bg-[#142126] border-claudia-primary/20 text-claudia-white"
                         {...field}
                       />

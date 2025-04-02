@@ -69,11 +69,11 @@ export type Database = {
           id: string
           message: string
           origin: string
+          reminder: string
           remotejid: string
           repetition: string | null
           send_date: string
           status: string
-          title: string
           updated_at: string
           user_id: string
         }
@@ -85,11 +85,11 @@ export type Database = {
           id?: string
           message: string
           origin?: string
+          reminder: string
           remotejid: string
           repetition?: string | null
           send_date: string
           status?: string
-          title: string
           updated_at?: string
           user_id: string
         }
@@ -101,11 +101,11 @@ export type Database = {
           id?: string
           message?: string
           origin?: string
+          reminder?: string
           remotejid?: string
           repetition?: string | null
           send_date?: string
           status?: string
-          title?: string
           updated_at?: string
           user_id?: string
         }

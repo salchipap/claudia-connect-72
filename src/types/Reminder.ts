@@ -2,12 +2,11 @@
 export type Reminder = {
   id: string;
   user_id: string;
-  title: string;
-  message: string;
+  reminder: string;
+  action: string;
   description?: string;
   date: string;
   send_date: string;
-  action?: string;
   remotejid: string;
   status: string;
   repetition?: string;
