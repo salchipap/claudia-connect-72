@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { format, isSameDay, isBefore, startOfDay, set, parseISO, isAfter } from "date-fns";
@@ -82,14 +81,12 @@ const ReminderCalendar = () => {
     },
   });
 
-  // Function to delete past reminders
   const deletePastReminders = async () => {
     if (!user) return;
     
     try {
       const startOfToday = startOfDay(new Date());
       
-      // Find reminders older than today
       const pastReminders = reminders.filter(reminder => 
         isBefore(parseISO(reminder.date), startOfToday)
       );
@@ -98,7 +95,6 @@ const ReminderCalendar = () => {
       
       console.log(`Found ${pastReminders.length} past reminders to delete`);
       
-      // Delete past reminders from the database
       const pastReminderIds = pastReminders.map(reminder => reminder.id);
       
       const { error } = await supabase
@@ -113,22 +109,18 @@ const ReminderCalendar = () => {
       
       console.log(`Successfully deleted ${pastReminders.length} past reminders`);
       
-      // Update the local state to remove the deleted reminders
       setReminders(prevReminders => 
         prevReminders.filter(reminder => 
           !isBefore(parseISO(reminder.date), startOfToday)
         )
       );
       
-      // Update reminder dates
       setReminderDates(prevDates => 
         prevDates.filter(date => !isBefore(date, startOfToday))
       );
       
-      // Update last cleanup date
       setLastCleanupDate(new Date());
       
-      // Show toast notification only if we deleted something
       if (pastReminders.length > 0) {
         toast({
           title: "Recordatorios actualizados",
@@ -141,29 +133,24 @@ const ReminderCalendar = () => {
     }
   };
 
-  // Check daily for past reminders - will run when component mounts and daily after that
   useEffect(() => {
     if (!user) return;
     
-    // Delete past reminders immediately on mount
     deletePastReminders();
     
-    // Set up interval to check daily
     const checkInterval = setInterval(() => {
       const currentDay = new Date().getDate();
       const lastCleanupDay = lastCleanupDate.getDate();
       
-      // If it's a new day since last cleanup
       if (currentDay !== lastCleanupDay) {
         console.log('New day detected - running cleanup of past reminders');
         deletePastReminders();
       }
-    }, 60 * 60 * 1000); // Check every hour
+    }, 60 * 60 * 1000);
     
     return () => clearInterval(checkInterval);
   }, [user, lastCleanupDate]);
 
-  // Fetch reminders effect
   useEffect(() => {
     if (!user) return;
 
@@ -177,13 +164,20 @@ const ReminderCalendar = () => {
 
         if (error) throw error;
 
-        const formattedReminders = data as Reminder[];
+        const formattedReminders = data.map(item => {
+          const reminder: Reminder = {
+            ...item,
+            reminder: item.reminder || item.title || '',
+            action: item.action || item.message || ''
+          };
+          return reminder;
+        });
+
         setReminders(formattedReminders);
 
         const dates = formattedReminders.map(reminder => new Date(reminder.date));
         setReminderDates(dates);
         
-        // Delete past reminders after fetching
         await deletePastReminders();
       } catch (error: any) {
         console.error('Error fetching reminders:', error.message);
@@ -256,7 +250,9 @@ const ReminderCalendar = () => {
       
       const reminderData = {
         user_id: user.id,
+        title: data.reminder,
         reminder: data.reminder,
+        message: data.action,
         action: data.action,
         description: data.description || null,
         date: selectedDate.toISOString(),
@@ -276,9 +272,13 @@ const ReminderCalendar = () => {
       if (error) throw error;
       
       if (reminderResponse && reminderResponse.length > 0) {
-        const newReminderData = reminderResponse[0] as Reminder;
-        setReminders([...reminders, newReminderData]);
+        const newReminderData: Reminder = {
+          ...reminderResponse[0],
+          reminder: reminderResponse[0].reminder || reminderResponse[0].title || '',
+          action: reminderResponse[0].action || reminderResponse[0].message || ''
+        };
         
+        setReminders([...reminders, newReminderData]);
         setReminderDates([...reminderDates, selectedDate]);
         
         if (userProfile && userProfile.reminders) {

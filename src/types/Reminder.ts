@@ -2,8 +2,10 @@
 export type Reminder = {
   id: string;
   user_id: string;
-  reminder: string;
-  action: string;
+  title?: string; // Keep for backward compatibility
+  reminder?: string; // New field
+  message?: string; // Keep for backward compatibility
+  action?: string; // New field
   description?: string;
   date: string;
   send_date: string;
