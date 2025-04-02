@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { format, isSameDay, isBefore, startOfDay, set, parseISO, isAfter } from "date-fns";
@@ -47,7 +46,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile, getStartOfDay } from "@/hooks/use-mobile";
 
 const reminderFormSchema = z.object({
   title: z.string().min(1, { message: "El título es obligatorio" }),
@@ -67,6 +66,7 @@ const ReminderCalendar = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [creatingReminder, setCreatingReminder] = useState(false);
+  const [lastCleanupDate, setLastCleanupDate] = useState<Date>(today);
   const { user, userProfile } = useAuth();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -124,16 +124,45 @@ const ReminderCalendar = () => {
         prevDates.filter(date => !isBefore(date, startOfToday))
       );
       
-      toast({
-        title: "Recordatorios actualizados",
-        description: `Se eliminaron ${pastReminders.length} recordatorios antiguos`,
-      });
+      // Update last cleanup date
+      setLastCleanupDate(new Date());
+      
+      // Show toast notification only if we deleted something
+      if (pastReminders.length > 0) {
+        toast({
+          title: "Recordatorios actualizados",
+          description: `Se eliminaron ${pastReminders.length} recordatorios antiguos`,
+        });
+      }
       
     } catch (error) {
       console.error('Error in deletePastReminders:', error);
     }
   };
 
+  // Check daily for past reminders - will run when component mounts and daily after that
+  useEffect(() => {
+    if (!user) return;
+    
+    // Delete past reminders immediately on mount
+    deletePastReminders();
+    
+    // Set up interval to check daily
+    const checkInterval = setInterval(() => {
+      const currentDay = new Date().getDate();
+      const lastCleanupDay = lastCleanupDate.getDate();
+      
+      // If it's a new day since last cleanup
+      if (currentDay !== lastCleanupDay) {
+        console.log('New day detected - running cleanup of past reminders');
+        deletePastReminders();
+      }
+    }, 60 * 60 * 1000); // Check every hour
+    
+    return () => clearInterval(checkInterval);
+  }, [user, lastCleanupDate]);
+
+  // Fetch reminders effect
   useEffect(() => {
     if (!user) return;
 

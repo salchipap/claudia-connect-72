@@ -24,3 +24,17 @@ export function useIsMobile() {
 
   return isMobile
 }
+
+// Utility to check if a date is before today (past date)
+export function isPastDate(date: Date): boolean {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return date < today
+}
+
+// Utility to get start of day
+export function getStartOfDay(date: Date = new Date()): Date {
+  const newDate = new Date(date)
+  newDate.setHours(0, 0, 0, 0)
+  return newDate
+}
