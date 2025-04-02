@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
-import { format, isSameDay, isBefore, startOfDay, set } from "date-fns";
+import { format, isSameDay, isBefore, startOfDay, set, parseISO, isAfter } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/auth";
@@ -80,6 +81,59 @@ const ReminderCalendar = () => {
     },
   });
 
+  // Function to delete past reminders
+  const deletePastReminders = async () => {
+    if (!user) return;
+    
+    try {
+      const startOfToday = startOfDay(new Date());
+      
+      // Find reminders older than today
+      const pastReminders = reminders.filter(reminder => 
+        isBefore(parseISO(reminder.date), startOfToday)
+      );
+      
+      if (pastReminders.length === 0) return;
+      
+      console.log(`Found ${pastReminders.length} past reminders to delete`);
+      
+      // Delete past reminders from the database
+      const pastReminderIds = pastReminders.map(reminder => reminder.id);
+      
+      const { error } = await supabase
+        .from('reminders')
+        .delete()
+        .in('id', pastReminderIds);
+      
+      if (error) {
+        console.error('Error deleting past reminders:', error);
+        return;
+      }
+      
+      console.log(`Successfully deleted ${pastReminders.length} past reminders`);
+      
+      // Update the local state to remove the deleted reminders
+      setReminders(prevReminders => 
+        prevReminders.filter(reminder => 
+          !isBefore(parseISO(reminder.date), startOfToday)
+        )
+      );
+      
+      // Update reminder dates
+      setReminderDates(prevDates => 
+        prevDates.filter(date => !isBefore(date, startOfToday))
+      );
+      
+      toast({
+        title: "Recordatorios actualizados",
+        description: `Se eliminaron ${pastReminders.length} recordatorios antiguos`,
+      });
+      
+    } catch (error) {
+      console.error('Error in deletePastReminders:', error);
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
 
@@ -98,6 +152,9 @@ const ReminderCalendar = () => {
 
         const dates = formattedReminders.map(reminder => new Date(reminder.date));
         setReminderDates(dates);
+        
+        // Delete past reminders after fetching
+        await deletePastReminders();
       } catch (error: any) {
         console.error('Error fetching reminders:', error.message);
         toast({
@@ -281,10 +338,10 @@ const ReminderCalendar = () => {
               form.reset();
               setIsCreateDialogOpen(true);
             }}
-            className="bg-claudia-primary hover:bg-claudia-primary/80 text-claudia-white h-9 px-3 md:h-10 md:px-4"
+            className="bg-claudia-primary hover:bg-claudia-primary/80 text-claudia-white"
             size={isMobile ? "sm" : "default"}
           >
-            <Plus className="h-4 w-4 mr-1 md:mr-2" /> 
+            <Plus className={`${isMobile ? "h-3 w-3 mr-1" : "h-4 w-4 mr-2"}`} /> 
             {isMobile ? "Crear" : "Crear Recordatorio"}
           </Button>
         </div>
