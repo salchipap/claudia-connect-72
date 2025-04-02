@@ -9,6 +9,57 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      messages: {
+        Row: {
+          action: string | null
+          created_at: string | null
+          date: string | null
+          description: string | null
+          id: string
+          message: string | null
+          origin: string | null
+          remotejid: string | null
+          repetition: number | null
+          send_date: string | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          action?: string | null
+          created_at?: string | null
+          date?: string | null
+          description?: string | null
+          id: string
+          message?: string | null
+          origin?: string | null
+          remotejid?: string | null
+          repetition?: number | null
+          send_date?: string | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string | null
+          created_at?: string | null
+          date?: string | null
+          description?: string | null
+          id?: string
+          message?: string | null
+          origin?: string | null
+          remotejid?: string | null
+          repetition?: number | null
+          send_date?: string | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       reminders: {
         Row: {
           action: string | null
